@@ -3,12 +3,12 @@
 ## Team Members
 
 **Frontend Development:**
-- Tharun Kamsala
-- Kaushik Ramesh
-
-**Backend Development:**
 - Somu Geetha Sravya
 - Shivankita K
+
+**Backend Development:**
+- Tharun Kamsala
+- Kaushik Ramesh
 
 ## Project Overview
 
@@ -135,6 +135,40 @@ Angular Frontend (Port 4200)
       │
       └─→ Trading API (Port 8081)
           └─→ Database (trading.db)
+```
+
+### Services Overview
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        FlowPay Ecosystem                        │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌─────────────────┐    ┌─────────────────┐                    │
+│  │  flowpay-frontend│    │                 │                    │
+│  │  (Angular 19)    │◄──►│   Web Browser   │                    │
+│  │  Port: 4200      │    │                 │                    │
+│  └────────┬─────────┘    └─────────────────┘                    │
+│           │                                                     │
+│           ▼                                                     │
+│  ┌─────────────────────────────────────────────────────┐       │
+│  │                   API Gateway Layer                  │       │
+│  └─────────────────────────────────────────────────────┘       │
+│           │                           │                         │
+│           ▼                           ▼                         │
+│  ┌─────────────────┐         ┌─────────────────┐               │
+│  │ flowpay-backend │         │ flowpay-trading │               │
+│  │ (Main Banking)  │         │ (Stock Trading) │               │
+│  │ Port: 8080      │         │ Port: 8081      │               │
+│  └────────┬────────┘         └────────┬────────┘               │
+│           │                           │                         │
+│           ▼                           ▼                         │
+│  ┌─────────────────┐         ┌─────────────────┐               │
+│  │  flowpay.db     │         │   trading.db    │               │
+│  │  (SQLite)       │         │   (SQLite)      │               │
+│  └─────────────────┘         └─────────────────┘               │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ## Database Structure
