@@ -294,7 +294,3 @@ The project will be successful when:
 **Duration:** Academic Project  
 **Team Size:** 4 Members  
 **Status:** In Development
-
-**Development Team:**
-- **Frontend:** Tharun Kamsala, Kaushik Ramesh
-- **Backend:** Somu Geetha Sravya, Shivankita K
