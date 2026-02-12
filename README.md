@@ -3,12 +3,12 @@
 ## Team Members
 
 **Frontend Development:**
-- Tharun Kamsala
-- Kaushik Ramesh
-
-**Backend Development:**
 - Somu Geetha Sravya
 - Shivankita K
+
+**Backend Development:**
+- Tharun Kamsala
+- Kaushik Ramesh
 
 ## Project Overview
 
@@ -137,6 +137,40 @@ Angular Frontend (Port 4200)
           └─→ Database (trading.db)
 ```
 
+### Services Overview
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        FlowPay Ecosystem                        │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌─────────────────┐    ┌─────────────────┐                    │
+│  │  flowpay-frontend│    │                 │                    │
+│  │  (Angular 19)    │◄──►│   Web Browser   │                    │
+│  │  Port: 4200      │    │                 │                    │
+│  └────────┬─────────┘    └─────────────────┘                    │
+│           │                                                     │
+│           ▼                                                     │
+│  ┌─────────────────────────────────────────────────────┐       │
+│  │                   API Gateway Layer                  │       │
+│  └─────────────────────────────────────────────────────┘       │
+│           │                           │                         │
+│           ▼                           ▼                         │
+│  ┌─────────────────┐         ┌─────────────────┐               │
+│  │ flowpay-backend │         │ flowpay-trading │               │
+│  │ (Main Banking)  │         │ (Stock Trading) │               │
+│  │ Port: 8080      │         │ Port: 8081      │               │
+│  └────────┬────────┘         └────────┬────────┘               │
+│           │                           │                         │
+│           ▼                           ▼                         │
+│  ┌─────────────────┐         ┌─────────────────┐               │
+│  │  flowpay.db     │         │   trading.db    │               │
+│  │  (SQLite)       │         │   (SQLite)      │               │
+│  └─────────────────┘         └─────────────────┘               │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
 ## Database Structure
 
 We'll store:
@@ -260,7 +294,3 @@ The project will be successful when:
 **Duration:** Academic Project  
 **Team Size:** 4 Members  
 **Status:** In Development
-
-**Development Team:**
-- **Frontend:** Tharun Kamsala, Kaushik Ramesh
-- **Backend:** Somu Geetha Sravya, Shivankita K
