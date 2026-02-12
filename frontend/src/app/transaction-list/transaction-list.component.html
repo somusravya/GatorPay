@@ -1,0 +1,67 @@
+<div class="transaction-container">
+  <h2>Transactions</h2>
+
+  <div class="add-transaction">
+    <h3>Add New Transaction</h3>
+    <div class="form-group">
+      <input
+        type="text"
+        placeholder="Payer name"
+        [(ngModel)]="newTransaction.payer"
+        class="form-input"
+      />
+    </div>
+    <div class="form-group">
+      <input
+        type="number"
+        placeholder="Amount"
+        [(ngModel)]="newTransaction.amount"
+        class="form-input"
+      />
+    </div>
+    <div class="form-group">
+      <input
+        type="date"
+        [(ngModel)]="newTransaction.date"
+        class="form-input"
+      />
+    </div>
+    <button (click)="addTransaction()" class="btn-primary">Add Transaction</button>
+  </div>
+
+  <div class="transactions-list">
+    <h3>Recent Transactions</h3>
+    <table *ngIf="transactions.length > 0" class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Payer</th>
+          <th>Amount</th>
+          <th>Date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let transaction of transactions">
+          <td>{{ transaction.id }}</td>
+          <td>{{ transaction.payer }}</td>
+          <td>${{ transaction.amount.toFixed(2) }}</td>
+          <td>{{ transaction.date }}</td>
+          <td>
+            <button
+              (click)="deleteTransaction(transaction.id)"
+              class="btn-delete"
+            >
+              Delete
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p *ngIf="transactions.length === 0" class="empty-state">No transactions yet</p>
+  </div>
+
+  <div class="summary" *ngIf="transactions.length > 0">
+    <strong>Total Amount: ${{ getTotalAmount().toFixed(2) }}</strong>
+  </div>
+</div>
