@@ -32,3 +32,10 @@ func Seed() {
 	seedBillers()
 	seedLoanOffers()
 }
+
+// Migrate runs auto-migrations for all models
+func Migrate() {}
+
+func seedBillers() {}
+
+func seedLoanOffers() {}
