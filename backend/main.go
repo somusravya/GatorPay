@@ -1,88 +1,64 @@
 package main
 
 import (
+	"log"
+	"strings"
+
+	"gatorpay-backend/config"
+	"gatorpay-backend/database"
+	"gatorpay-backend/handlers"
+	"gatorpay-backend/routes"
+	"gatorpay-backend/services"
+
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	// Load .env file (ignore error if not present)
+	if err := godotenv.Load(); err != nil {
+		log.Println("⚠️  No .env file found, using environment variables")
+	}
+
+	// Load configuration
+	cfg := config.Load()
+
+	// Connect to database
+	database.Connect(cfg.DBDSN)
+	database.Migrate()
+	database.Seed()
+
+	// Initialize services
+	tokenService := services.NewTokenService(cfg)
+	emailService := services.NewEmailService(cfg)
+	otpService := services.NewOTPService(database.DB, emailService)
+	authService := services.NewAuthService(database.DB, tokenService, otpService)
+	walletService := services.NewWalletService(database.DB)
+
+	// Initialize handlers
+	authHandler := handlers.NewAuthHandler(authService)
+	walletHandler := handlers.NewWalletHandler(walletService)
+
+	// Setup Gin router
 	router := gin.Default()
 
-	// Enable CORS
-	router.Use(func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
+	// CORS configuration
+	corsOrigins := strings.Split(cfg.CORSOrigins, ",")
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     corsOrigins,
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
 
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
-			return
-		}
+	// Setup routes
+	routes.Setup(router, authHandler, walletHandler, tokenService)
 
-		c.Next()
-	})
-
-	// Health check endpoint
-	router.GET("/api/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"status": "healthy",
-		})
-	})
-
-	// Get all transactions
-	router.GET("/api/transactions", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"transactions": []gin.H{
-				{
-					"id":     1,
-					"payer":  "Alice",
-					"amount": 50.00,
-					"date":   "2026-02-12",
-				},
-				{
-					"id":     2,
-					"payer":  "Bob",
-					"amount": 30.00,
-					"date":   "2026-02-11",
-				},
-			},
-		})
-	})
-
-	// Create a new transaction
-	router.POST("/api/transactions", func(c *gin.Context) {
-		var transaction gin.H
-		if err := c.BindJSON(&transaction); err != nil {
-			c.JSON(400, gin.H{"error": err.Error()})
-			return
-		}
-
-		c.JSON(201, gin.H{
-			"id":        3,
-			"payer":     transaction["payer"],
-			"amount":    transaction["amount"],
-			"date":      transaction["date"],
-			"message":   "Transaction created successfully",
-		})
-	})
-
-	// Get users
-	router.GET("/api/users", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"users": []gin.H{
-				{
-					"id":    1,
-					"name":  "Alice",
-					"email": "alice@example.com",
-				},
-				{
-					"id":    2,
-					"name":  "Bob",
-					"email": "bob@example.com",
-				},
-			},
-		})
-	})
-
-	router.Run(":8080")
+	// Start server
+	log.Printf("🚀 GatorPay Backend running on port %s", cfg.Port)
+	if err := router.Run(":" + cfg.Port); err != nil {
+		log.Fatal("Failed to start server:", err)
+	}
 }
