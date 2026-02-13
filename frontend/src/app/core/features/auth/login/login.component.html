@@ -1,0 +1,96 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="logo">
+        <span class="logo-icon">🐊</span>
+        <h1>GatorPay</h1>
+      </div>
+      @if (otpStep()) {
+      <p class="subtitle">Enter verification code</p>
+      } @else {
+      <p class="subtitle">Welcome back! Sign in to your account</p>
+      }
+    </div>
+
+    @if (error()) {
+    <div class="error-message">
+      <span>⚠️</span> {{ error() }}
+    </div>
+    }
+
+    @if (success()) {
+    <div class="success-message">
+      <span>✅</span> {{ success() }}
+    </div>
+    }
+
+    @if (!otpStep()) {
+    <!-- Step 1: Credentials -->
+    <form (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input id="email" type="email" [(ngModel)]="email" name="email" placeholder="Enter your email" required
+          [disabled]="loading()" />
+        @if (email.length > 0 && !isEmailValid) {
+        <span class="field-error">Please enter a valid email address</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <div class="password-wrapper">
+          <input id="password" [type]="showPassword() ? 'text' : 'password'" [(ngModel)]="password" name="password"
+            placeholder="Enter your password" required [disabled]="loading()" />
+          <button type="button" class="toggle-password" (click)="togglePassword()">
+            {{ showPassword() ? '🙈' : '👁️' }}
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-primary" [disabled]="loading() || !isEmailValid || !password">
+        @if (loading()) {
+        <span class="spinner"></span> Signing in...
+        } @else {
+        Sign In
+        }
+      </button>
+    </form>
+    } @else {
+    <!-- Step 2: OTP Verification -->
+    <form (ngSubmit)="onVerifyOTP()" class="auth-form">
+      <div class="otp-info">
+        <p>We sent a 6-digit code to <strong>{{ maskedEmail }}</strong></p>
+      </div>
+
+      <div class="form-group">
+        <label for="otp">Verification Code</label>
+        <input id="otp" type="text" [(ngModel)]="otpCode" name="otp" placeholder="Enter 6-digit code" maxlength="6"
+          class="otp-input" [disabled]="loading()" autocomplete="one-time-code" />
+      </div>
+
+      <button type="submit" class="btn-primary" [disabled]="loading() || otpCode.length !== 6">
+        @if (loading()) {
+        <span class="spinner"></span> Verifying...
+        } @else {
+        Verify & Sign In
+        }
+      </button>
+
+      <div class="otp-actions">
+        <button type="button" class="btn-link" (click)="resendOTP()" [disabled]="resendCooldown() > 0">
+          @if (resendCooldown() > 0) {
+          Resend in {{ resendCooldown() }}s
+          } @else {
+          Resend Code
+          }
+        </button>
+        <button type="button" class="btn-link" (click)="backToLogin()">← Back</button>
+      </div>
+    </form>
+    }
+
+    <div class="auth-footer">
+      <p>Don't have an account? <a routerLink="/register">Create one</a></p>
+    </div>
+  </div>
+</div>
