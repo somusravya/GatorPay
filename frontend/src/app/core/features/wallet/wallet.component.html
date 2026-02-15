@@ -1,0 +1,98 @@
+<div class="wallet-page">
+    <!-- Balance Header -->
+    <div class="wallet-balance-card">
+        <span class="balance-label">Wallet Balance</span>
+        <h1 class="balance-amount">{{ getFormattedBalance() }}</h1>
+        <span class="wallet-status" [class.active]="wallet()?.is_active">
+            {{ wallet()?.is_active ? '🟢 Active' : '🔴 Inactive' }}
+        </span>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <button [class.active]="activeTab() === 'add'" (click)="switchTab('add')">
+            💳 Add Money
+        </button>
+        <button [class.active]="activeTab() === 'withdraw'" (click)="switchTab('withdraw')">
+            🏦 Withdraw
+        </button>
+    </div>
+
+    <!-- Add Money Tab -->
+    @if (activeTab() === 'add') {
+    <div class="form-card">
+        <h3>Add Money to Wallet</h3>
+
+        @if (addError()) {
+        <div class="error-message">⚠️ {{ addError() }}</div>
+        }
+        @if (addSuccess()) {
+        <div class="success-message">✅ {{ addSuccess() }}</div>
+        }
+
+        <form (ngSubmit)="onAddMoney()">
+            <div class="form-group">
+                <label>Amount ($)</label>
+                <input type="number" [(ngModel)]="addAmount" name="amount" placeholder="0.00" min="0.01" step="0.01"
+                    [disabled]="addLoading()" />
+            </div>
+            <div class="form-group">
+                <label>Source</label>
+                <select [(ngModel)]="addSource" name="source" [disabled]="addLoading()">
+                    <option>Bank Account</option>
+                    <option>Debit Card</option>
+                    <option>Credit Card</option>
+                    <option>PayPal</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Description (optional)</label>
+                <input type="text" [(ngModel)]="addDescription" name="description" placeholder="What's this for?"
+                    [disabled]="addLoading()" />
+            </div>
+            <button type="submit" class="btn-primary" [disabled]="addLoading() || addAmount <= 0">
+                @if (addLoading()) {
+                <span class="spinner"></span> Processing...
+                } @else {
+                Add Money
+                }
+            </button>
+        </form>
+    </div>
+    }
+
+    <!-- Withdraw Tab -->
+    @if (activeTab() === 'withdraw') {
+    <div class="form-card">
+        <h3>Withdraw from Wallet</h3>
+
+        @if (withdrawError()) {
+        <div class="error-message">⚠️ {{ withdrawError() }}</div>
+        }
+        @if (withdrawSuccess()) {
+        <div class="success-message">✅ {{ withdrawSuccess() }}</div>
+        }
+
+        <form (ngSubmit)="onWithdraw()">
+            <div class="form-group">
+                <label>Amount ($)</label>
+                <input type="number" [(ngModel)]="withdrawAmount" name="amount" placeholder="0.00" min="0.01"
+                    step="0.01" [disabled]="withdrawLoading()" />
+            </div>
+            <div class="form-group">
+                <label>Bank Account</label>
+                <input type="text" [(ngModel)]="withdrawBankAccount" name="bankAccount"
+                    placeholder="Enter bank account number" [disabled]="withdrawLoading()" />
+            </div>
+            <button type="submit" class="btn-primary btn-withdraw"
+                [disabled]="withdrawLoading() || withdrawAmount <= 0 || !withdrawBankAccount">
+                @if (withdrawLoading()) {
+                <span class="spinner"></span> Processing...
+                } @else {
+                Withdraw
+                }
+            </button>
+        </form>
+    </div>
+    }
+</div>
