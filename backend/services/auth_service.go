@@ -2,80 +2,187 @@ package services
 
 import (
 	"errors"
-	"regexp"
-	"strings"
-	"unicode"
+	"math"
 
 	"gatorpay-backend/models"
 
 	"github.com/shopspring/decimal"
-	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
-// AuthService handles user authentication business logic
-type AuthService struct {
-	db           *gorm.DB
-	tokenService *TokenService
-	otpService   *OTPService
+// WalletService handles wallet-related business logic
+type WalletService struct {
+	db *gorm.DB
 }
 
-// NewAuthService creates a new AuthService
-func NewAuthService(db *gorm.DB, tokenService *TokenService, otpService *OTPService) *AuthService {
-	return &AuthService{db: db, tokenService: tokenService, otpService: otpService}
+// NewWalletService creates a new WalletService
+func NewWalletService(db *gorm.DB) *WalletService {
+	return &WalletService{db: db}
 }
 
-// --- DTOs ---
-
-// RegisterInput is the DTO for user registration
-type RegisterInput struct {
-	Email     string `json:"email" binding:"required"`
-	Password  string `json:"password" binding:"required,min=8"`
-	Username  string `json:"username" binding:"required,min=3"`
-	Phone     string `json:"phone" binding:"required"`
-	FirstName string `json:"first_name" binding:"required"`
-	LastName  string `json:"last_name" binding:"required"`
+// AddMoneyInput is the DTO for adding money
+type AddMoneyInput struct {
+	Amount      float64 `json:"amount" binding:"required"`
+	Source      string  `json:"source" binding:"required"`
+	Description string  `json:"description"`
 }
 
-// LoginInput is the DTO for user login
-type LoginInput struct {
-	Email    string `json:"email" binding:"required"`
-	Password string `json:"password" binding:"required"`
+// WithdrawInput is the DTO for withdrawing money
+type WithdrawInput struct {
+	Amount      float64 `json:"amount" binding:"required"`
+	BankAccount string  `json:"bank_account" binding:"required"`
 }
 
-// VerifyOTPInput is the DTO for OTP verification
-type VerifyOTPInput struct {
-	UserID  string `json:"user_id" binding:"required"`
-	Code    string `json:"code" binding:"required,len=6"`
-	Purpose string `json:"purpose" binding:"required"`
+// TransactionListResponse is the paginated transaction response
+type TransactionListResponse struct {
+	Transactions []models.Transaction `json:"transactions"`
+	Total        int64                `json:"total"`
+	Page         int                  `json:"page"`
+	Limit        int                  `json:"limit"`
+	TotalPages   int                  `json:"total_pages"`
 }
 
-// ResendOTPInput is the DTO for resending OTP
-type ResendOTPInput struct {
-	UserID  string `json:"user_id" binding:"required"`
-	Purpose string `json:"purpose" binding:"required"`
+// GetWallet returns the wallet for a given user
+func (s *WalletService) GetWallet(userID string) (*models.Wallet, error) {
+	var wallet models.Wallet
+	if err := s.db.Where("user_id = ?", userID).First(&wallet).Error; err != nil {
+		return nil, errors.New("wallet not found")
+	}
+	return &wallet, nil
 }
 
-// GoogleAuthInput is the DTO for Google OAuth
-type GoogleAuthInput struct {
-	GoogleID string `json:"google_id" binding:"required"`
-	Email    string `json:"email" binding:"required,email"`
-	Name     string `json:"name" binding:"required"`
-	Avatar   string `json:"avatar"`
+// AddMoney deposits money into the user's wallet atomically
+func (s *WalletService) AddMoney(userID string, input AddMoneyInput) (*models.Wallet, error) {
+	amount := decimal.NewFromFloat(input.Amount)
+	if amount.LessThanOrEqual(decimal.Zero) {
+		return nil, errors.New("amount must be greater than 0")
+	}
+
+	var wallet models.Wallet
+	err := s.db.Transaction(func(tx *gorm.DB) error {
+		// Lock the wallet row for update
+		if err := tx.Where("user_id = ?", userID).First(&wallet).Error; err != nil {
+			return errors.New("wallet not found")
+		}
+
+		if !wallet.IsActive {
+			return errors.New("wallet is not active")
+		}
+
+		// Update balance
+		wallet.Balance = wallet.Balance.Add(amount)
+		if err := tx.Save(&wallet).Error; err != nil {
+			return errors.New("failed to update balance")
+		}
+
+		// Create transaction record
+		description := input.Description
+		if description == "" {
+			description = "Deposit from " + input.Source
+		}
+		transaction := models.Transaction{
+			WalletID:    wallet.ID,
+			Type:        models.TransactionTypeDeposit,
+			Amount:      amount,
+			Description: description,
+			Status:      models.TransactionStatusSuccess,
+		}
+		if err := tx.Create(&transaction).Error; err != nil {
+			return errors.New("failed to create transaction record")
+		}
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &wallet, nil
 }
 
-// --- Responses ---
+// Withdraw deducts money from the user's wallet atomically
+func (s *WalletService) Withdraw(userID string, input WithdrawInput) (*models.Wallet, error) {
+	amount := decimal.NewFromFloat(input.Amount)
+	if amount.LessThanOrEqual(decimal.Zero) {
+		return nil, errors.New("amount must be greater than 0")
+	}
 
-// AuthResponse is the full auth response (after OTP verified)
-type AuthResponse struct {
-	Token  string              `json:"token"`
-	User   models.UserResponse `json:"user"`
-	Wallet *models.Wallet      `json:"wallet"`
+	var wallet models.Wallet
+	err := s.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("user_id = ?", userID).First(&wallet).Error; err != nil {
+			return errors.New("wallet not found")
+		}
+
+		if !wallet.IsActive {
+			return errors.New("wallet is not active")
+		}
+
+		// Check sufficient balance
+		if wallet.Balance.LessThan(amount) {
+			return errors.New("insufficient balance")
+		}
+
+		// Deduct balance
+		wallet.Balance = wallet.Balance.Sub(amount)
+		if err := tx.Save(&wallet).Error; err != nil {
+			return errors.New("failed to update balance")
+		}
+
+		// Create transaction record
+		transaction := models.Transaction{
+			WalletID:    wallet.ID,
+			Type:        models.TransactionTypeWithdraw,
+			Amount:      amount,
+			Description: "Withdrawal to " + input.BankAccount,
+			Status:      models.TransactionStatusSuccess,
+		}
+		if err := tx.Create(&transaction).Error; err != nil {
+			return errors.New("failed to create transaction record")
+		}
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &wallet, nil
 }
 
-// OTPSentResponse is returned when OTP is sent (step 1)
-type OTPSentResponse struct {
-	UserID  string `json:"user_id"`
-	Email   string `json:"email"`
-	Purpose string `json:"purpose"`
+// GetTransactions returns paginated transactions for a user's wallet
+func (s *WalletService) GetTransactions(userID string, page, limit int) (*TransactionListResponse, error) {
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 || limit > 50 {
+		limit = 10
+	}
+
+	var wallet models.Wallet
+	if err := s.db.Where("user_id = ?", userID).First(&wallet).Error; err != nil {
+		return nil, errors.New("wallet not found")
+	}
+
+	var total int64
+	s.db.Model(&models.Transaction{}).Where("wallet_id = ?", wallet.ID).Count(&total)
+
+	var transactions []models.Transaction
+	offset := (page - 1) * limit
+	if err := s.db.Where("wallet_id = ?", wallet.ID).
+		Order("created_at DESC").
+		Offset(offset).
+		Limit(limit).
+		Find(&transactions).Error; err != nil {
+		return nil, errors.New("failed to fetch transactions")
+	}
+
+	totalPages := int(math.Ceil(float64(total) / float64(limit)))
+
+	return &TransactionListResponse{
+		Transactions: transactions,
+		Total:        total,
+		Page:         page,
+		Limit:        limit,
+		TotalPages:   totalPages,
+	}, nil
 }
