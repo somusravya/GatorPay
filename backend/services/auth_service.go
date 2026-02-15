@@ -2,187 +2,385 @@ package services
 
 import (
 	"errors"
-	"math"
+	"regexp"
+	"strings"
+	"unicode"
 
 	"gatorpay-backend/models"
 
 	"github.com/shopspring/decimal"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
-// WalletService handles wallet-related business logic
-type WalletService struct {
-	db *gorm.DB
+// AuthService handles user authentication business logic
+type AuthService struct {
+	db           *gorm.DB
+	tokenService *TokenService
+	otpService   *OTPService
 }
 
-// NewWalletService creates a new WalletService
-func NewWalletService(db *gorm.DB) *WalletService {
-	return &WalletService{db: db}
+// NewAuthService creates a new AuthService
+func NewAuthService(db *gorm.DB, tokenService *TokenService, otpService *OTPService) *AuthService {
+	return &AuthService{db: db, tokenService: tokenService, otpService: otpService}
 }
 
-// AddMoneyInput is the DTO for adding money
-type AddMoneyInput struct {
-	Amount      float64 `json:"amount" binding:"required"`
-	Source      string  `json:"source" binding:"required"`
-	Description string  `json:"description"`
+// --- DTOs ---
+
+// RegisterInput is the DTO for user registration
+type RegisterInput struct {
+	Email     string `json:"email" binding:"required"`
+	Password  string `json:"password" binding:"required,min=8"`
+	Username  string `json:"username" binding:"required,min=3"`
+	Phone     string `json:"phone" binding:"required"`
+	FirstName string `json:"first_name" binding:"required"`
+	LastName  string `json:"last_name" binding:"required"`
 }
 
-// WithdrawInput is the DTO for withdrawing money
-type WithdrawInput struct {
-	Amount      float64 `json:"amount" binding:"required"`
-	BankAccount string  `json:"bank_account" binding:"required"`
+// LoginInput is the DTO for user login
+type LoginInput struct {
+	Email    string `json:"email" binding:"required"`
+	Password string `json:"password" binding:"required"`
 }
 
-// TransactionListResponse is the paginated transaction response
-type TransactionListResponse struct {
-	Transactions []models.Transaction `json:"transactions"`
-	Total        int64                `json:"total"`
-	Page         int                  `json:"page"`
-	Limit        int                  `json:"limit"`
-	TotalPages   int                  `json:"total_pages"`
+// VerifyOTPInput is the DTO for OTP verification
+type VerifyOTPInput struct {
+	UserID  string `json:"user_id" binding:"required"`
+	Code    string `json:"code" binding:"required,len=6"`
+	Purpose string `json:"purpose" binding:"required"`
 }
 
-// GetWallet returns the wallet for a given user
-func (s *WalletService) GetWallet(userID string) (*models.Wallet, error) {
-	var wallet models.Wallet
-	if err := s.db.Where("user_id = ?", userID).First(&wallet).Error; err != nil {
-		return nil, errors.New("wallet not found")
+// ResendOTPInput is the DTO for resending OTP
+type ResendOTPInput struct {
+	UserID  string `json:"user_id" binding:"required"`
+	Purpose string `json:"purpose" binding:"required"`
+}
+
+// GoogleAuthInput is the DTO for Google OAuth
+type GoogleAuthInput struct {
+	GoogleID string `json:"google_id" binding:"required"`
+	Email    string `json:"email" binding:"required,email"`
+	Name     string `json:"name" binding:"required"`
+	Avatar   string `json:"avatar"`
+}
+
+// --- Responses ---
+
+// AuthResponse is the full auth response (after OTP verified)
+type AuthResponse struct {
+	Token  string              `json:"token"`
+	User   models.UserResponse `json:"user"`
+	Wallet *models.Wallet      `json:"wallet"`
+}
+
+// OTPSentResponse is returned when OTP is sent (step 1)
+type OTPSentResponse struct {
+	UserID  string `json:"user_id"`
+	Email   string `json:"email"`
+	Purpose string `json:"purpose"`
+}
+
+// --- Validation helpers ---
+
+var emailRegex = regexp.MustCompile(`^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$`)
+
+func validateEmail(email string) error {
+	if !emailRegex.MatchString(email) {
+		return errors.New("invalid email format")
 	}
-	return &wallet, nil
+	return nil
 }
 
-// AddMoney deposits money into the user's wallet atomically
-func (s *WalletService) AddMoney(userID string, input AddMoneyInput) (*models.Wallet, error) {
-	amount := decimal.NewFromFloat(input.Amount)
-	if amount.LessThanOrEqual(decimal.Zero) {
-		return nil, errors.New("amount must be greater than 0")
+func validatePhone(phone string) (string, error) {
+	// Strip non-digit characters
+	var digits strings.Builder
+	for _, r := range phone {
+		if unicode.IsDigit(r) {
+			digits.WriteRune(r)
+		}
 	}
+	cleaned := digits.String()
+	if len(cleaned) != 10 {
+		return "", errors.New("phone number must be exactly 10 digits")
+	}
+	return cleaned, nil
+}
 
-	var wallet models.Wallet
-	err := s.db.Transaction(func(tx *gorm.DB) error {
-		// Lock the wallet row for update
-		if err := tx.Where("user_id = ?", userID).First(&wallet).Error; err != nil {
-			return errors.New("wallet not found")
-		}
+// --- Auth methods ---
 
-		if !wallet.IsActive {
-			return errors.New("wallet is not active")
-		}
-
-		// Update balance
-		wallet.Balance = wallet.Balance.Add(amount)
-		if err := tx.Save(&wallet).Error; err != nil {
-			return errors.New("failed to update balance")
-		}
-
-		// Create transaction record
-		description := input.Description
-		if description == "" {
-			description = "Deposit from " + input.Source
-		}
-		transaction := models.Transaction{
-			WalletID:    wallet.ID,
-			Type:        models.TransactionTypeDeposit,
-			Amount:      amount,
-			Description: description,
-			Status:      models.TransactionStatusSuccess,
-		}
-		if err := tx.Create(&transaction).Error; err != nil {
-			return errors.New("failed to create transaction record")
-		}
-
-		return nil
-	})
-	if err != nil {
+// Register creates a new user with wallet, then sends OTP (no JWT returned yet)
+func (s *AuthService) Register(input RegisterInput) (*OTPSentResponse, error) {
+	// Validate email format
+	if err := validateEmail(input.Email); err != nil {
 		return nil, err
 	}
 
-	return &wallet, nil
-}
-
-// Withdraw deducts money from the user's wallet atomically
-func (s *WalletService) Withdraw(userID string, input WithdrawInput) (*models.Wallet, error) {
-	amount := decimal.NewFromFloat(input.Amount)
-	if amount.LessThanOrEqual(decimal.Zero) {
-		return nil, errors.New("amount must be greater than 0")
-	}
-
-	var wallet models.Wallet
-	err := s.db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Where("user_id = ?", userID).First(&wallet).Error; err != nil {
-			return errors.New("wallet not found")
-		}
-
-		if !wallet.IsActive {
-			return errors.New("wallet is not active")
-		}
-
-		// Check sufficient balance
-		if wallet.Balance.LessThan(amount) {
-			return errors.New("insufficient balance")
-		}
-
-		// Deduct balance
-		wallet.Balance = wallet.Balance.Sub(amount)
-		if err := tx.Save(&wallet).Error; err != nil {
-			return errors.New("failed to update balance")
-		}
-
-		// Create transaction record
-		transaction := models.Transaction{
-			WalletID:    wallet.ID,
-			Type:        models.TransactionTypeWithdraw,
-			Amount:      amount,
-			Description: "Withdrawal to " + input.BankAccount,
-			Status:      models.TransactionStatusSuccess,
-		}
-		if err := tx.Create(&transaction).Error; err != nil {
-			return errors.New("failed to create transaction record")
-		}
-
-		return nil
-	})
+	// Validate phone
+	cleanPhone, err := validatePhone(input.Phone)
 	if err != nil {
 		return nil, err
 	}
+	input.Phone = cleanPhone
 
-	return &wallet, nil
-}
-
-// GetTransactions returns paginated transactions for a user's wallet
-func (s *WalletService) GetTransactions(userID string, page, limit int) (*TransactionListResponse, error) {
-	if page < 1 {
-		page = 1
-	}
-	if limit < 1 || limit > 50 {
-		limit = 10
+	// Check email uniqueness
+	var existingUser models.User
+	if err := s.db.Where("email = ?", input.Email).First(&existingUser).Error; err == nil {
+		return nil, errors.New("email already registered")
 	}
 
-	var wallet models.Wallet
-	if err := s.db.Where("user_id = ?", userID).First(&wallet).Error; err != nil {
-		return nil, errors.New("wallet not found")
+	// Check username uniqueness
+	if err := s.db.Where("username = ?", input.Username).First(&existingUser).Error; err == nil {
+		return nil, errors.New("username already taken")
 	}
 
-	var total int64
-	s.db.Model(&models.Transaction{}).Where("wallet_id = ?", wallet.ID).Count(&total)
-
-	var transactions []models.Transaction
-	offset := (page - 1) * limit
-	if err := s.db.Where("wallet_id = ?", wallet.ID).
-		Order("created_at DESC").
-		Offset(offset).
-		Limit(limit).
-		Find(&transactions).Error; err != nil {
-		return nil, errors.New("failed to fetch transactions")
+	// Check phone uniqueness
+	if err := s.db.Where("phone = ?", input.Phone).First(&existingUser).Error; err == nil {
+		return nil, errors.New("phone number already registered")
 	}
 
-	totalPages := int(math.Ceil(float64(total) / float64(limit)))
+	// Hash password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, errors.New("failed to hash password")
+	}
 
-	return &TransactionListResponse{
-		Transactions: transactions,
-		Total:        total,
-		Page:         page,
-		Limit:        limit,
-		TotalPages:   totalPages,
+	var user models.User
+
+	// Create user and wallet in a DB transaction
+	err = s.db.Transaction(func(tx *gorm.DB) error {
+		user = models.User{
+			Email:         input.Email,
+			Username:      input.Username,
+			Phone:         input.Phone,
+			PasswordHash:  string(hashedPassword),
+			FirstName:     input.FirstName,
+			LastName:      input.LastName,
+			AuthProvider:  models.AuthProviderLocal,
+			EmailVerified: false,
+			KYCStatus:     models.KYCPending,
+			CreditScore:   650,
+		}
+		if err := tx.Create(&user).Error; err != nil {
+			return err
+		}
+
+		wallet := models.Wallet{
+			UserID:   user.ID,
+			Balance:  decimal.NewFromInt(0),
+			Currency: "USD",
+			IsActive: true,
+		}
+		return tx.Create(&wallet).Error
+	})
+	if err != nil {
+		if strings.Contains(err.Error(), "duplicate key") || strings.Contains(err.Error(), "unique") {
+			return nil, errors.New("user with this information already exists")
+		}
+		return nil, errors.New("failed to create user")
+	}
+
+	// Send OTP for registration verification
+	if err := s.otpService.GenerateAndSend(user.ID, user.Email, models.OTPPurposeRegister); err != nil {
+		return nil, errors.New("failed to send verification code")
+	}
+
+	return &OTPSentResponse{
+		UserID:  user.ID,
+		Email:   maskEmail(user.Email),
+		Purpose: models.OTPPurposeRegister,
 	}, nil
+}
+
+// Login validates credentials then sends OTP (no JWT returned yet)
+func (s *AuthService) Login(input LoginInput) (*OTPSentResponse, error) {
+	// Validate email format
+	if err := validateEmail(input.Email); err != nil {
+		return nil, err
+	}
+
+	var user models.User
+	if err := s.db.Where("email = ?", input.Email).First(&user).Error; err != nil {
+		return nil, errors.New("invalid email or password")
+	}
+
+	// Compare bcrypt
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(input.Password)); err != nil {
+		return nil, errors.New("invalid email or password")
+	}
+
+	// Send OTP for login verification
+	if err := s.otpService.GenerateAndSend(user.ID, user.Email, models.OTPPurposeLogin); err != nil {
+		return nil, errors.New("failed to send verification code")
+	}
+
+	return &OTPSentResponse{
+		UserID:  user.ID,
+		Email:   maskEmail(user.Email),
+		Purpose: models.OTPPurposeLogin,
+	}, nil
+}
+
+// VerifyOTP verifies the OTP code and completes authentication
+func (s *AuthService) VerifyOTP(input VerifyOTPInput) (*AuthResponse, error) {
+	// Verify OTP
+	if err := s.otpService.Verify(input.UserID, input.Code, input.Purpose); err != nil {
+		return nil, err
+	}
+
+	// Load user with wallet
+	var user models.User
+	if err := s.db.Preload("Wallet").Where("id = ?", input.UserID).First(&user).Error; err != nil {
+		return nil, errors.New("user not found")
+	}
+
+	// If this is a registration OTP, mark email as verified
+	if input.Purpose == models.OTPPurposeRegister {
+		user.EmailVerified = true
+		s.db.Save(&user)
+	}
+
+	// Generate JWT
+	token, err := s.tokenService.GenerateToken(user.ID)
+	if err != nil {
+		return nil, errors.New("failed to generate token")
+	}
+
+	return &AuthResponse{
+		Token:  token,
+		User:   user.ToResponse(),
+		Wallet: user.Wallet,
+	}, nil
+}
+
+// ResendOTP resends a new OTP code
+func (s *AuthService) ResendOTP(input ResendOTPInput) (*OTPSentResponse, error) {
+	var user models.User
+	if err := s.db.Where("id = ?", input.UserID).First(&user).Error; err != nil {
+		return nil, errors.New("user not found")
+	}
+
+	if err := s.otpService.GenerateAndSend(user.ID, user.Email, input.Purpose); err != nil {
+		return nil, errors.New("failed to send verification code")
+	}
+
+	return &OTPSentResponse{
+		UserID:  user.ID,
+		Email:   maskEmail(user.Email),
+		Purpose: input.Purpose,
+	}, nil
+}
+
+// GoogleAuth handles Google OAuth login/registration (no OTP required)
+func (s *AuthService) GoogleAuth(input GoogleAuthInput) (*AuthResponse, error) {
+	var user models.User
+
+	// Check if GoogleID already exists → login
+	if err := s.db.Preload("Wallet").Where("google_id = ?", input.GoogleID).First(&user).Error; err == nil {
+		token, err := s.tokenService.GenerateToken(user.ID)
+		if err != nil {
+			return nil, errors.New("failed to generate token")
+		}
+		return &AuthResponse{
+			Token:  token,
+			User:   user.ToResponse(),
+			Wallet: user.Wallet,
+		}, nil
+	}
+
+	// Check if email exists → link account
+	if err := s.db.Preload("Wallet").Where("email = ?", input.Email).First(&user).Error; err == nil {
+		user.GoogleID = input.GoogleID
+		user.AuthProvider = models.AuthProviderGoogle
+		user.EmailVerified = true
+		if input.Avatar != "" {
+			user.AvatarURL = input.Avatar
+		}
+		s.db.Save(&user)
+
+		token, err := s.tokenService.GenerateToken(user.ID)
+		if err != nil {
+			return nil, errors.New("failed to generate token")
+		}
+		return &AuthResponse{
+			Token:  token,
+			User:   user.ToResponse(),
+			Wallet: user.Wallet,
+		}, nil
+	}
+
+	// Create new user
+	nameParts := strings.SplitN(input.Name, " ", 2)
+	firstName := nameParts[0]
+	lastName := ""
+	if len(nameParts) > 1 {
+		lastName = nameParts[1]
+	}
+
+	var wallet models.Wallet
+	err := s.db.Transaction(func(tx *gorm.DB) error {
+		user = models.User{
+			Email:         input.Email,
+			Username:      strings.Split(input.Email, "@")[0],
+			Phone:         "",
+			FirstName:     firstName,
+			LastName:      lastName,
+			AvatarURL:     input.Avatar,
+			AuthProvider:  models.AuthProviderGoogle,
+			GoogleID:      input.GoogleID,
+			EmailVerified: true,
+			KYCStatus:     models.KYCPending,
+			CreditScore:   650,
+		}
+		if err := tx.Create(&user).Error; err != nil {
+			return err
+		}
+
+		wallet = models.Wallet{
+			UserID:   user.ID,
+			Balance:  decimal.NewFromInt(0),
+			Currency: "USD",
+			IsActive: true,
+		}
+		return tx.Create(&wallet).Error
+	})
+	if err != nil {
+		return nil, errors.New("failed to create user")
+	}
+
+	token, err := s.tokenService.GenerateToken(user.ID)
+	if err != nil {
+		return nil, errors.New("failed to generate token")
+	}
+
+	return &AuthResponse{
+		Token:  token,
+		User:   user.ToResponse(),
+		Wallet: &wallet,
+	}, nil
+}
+
+// GetMe returns the current user with their wallet
+func (s *AuthService) GetMe(userID string) (*AuthResponse, error) {
+	var user models.User
+	if err := s.db.Preload("Wallet").Where("id = ?", userID).First(&user).Error; err != nil {
+		return nil, errors.New("user not found")
+	}
+
+	return &AuthResponse{
+		User:   user.ToResponse(),
+		Wallet: user.Wallet,
+	}, nil
+}
+
+// maskEmail masks the middle of an email for display (e.g. j***@gator.edu)
+func maskEmail(email string) string {
+	parts := strings.Split(email, "@")
+	if len(parts) != 2 {
+		return email
+	}
+	name := parts[0]
+	if len(name) <= 1 {
+		return name + "***@" + parts[1]
+	}
+	return string(name[0]) + "***@" + parts[1]
 }
