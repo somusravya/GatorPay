@@ -1,0 +1,131 @@
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="logo">
+                <span class="logo-icon">🐊</span>
+                <h1>GatorPay</h1>
+            </div>
+            @if (otpStep()) {
+            <p class="subtitle">Verify your email to complete registration</p>
+            } @else {
+            <p class="subtitle">Create your account and start managing your finances</p>
+            }
+        </div>
+
+        @if (error()) {
+        <div class="error-message">
+            <span>⚠️</span> {{ error() }}
+        </div>
+        }
+
+        @if (success()) {
+        <div class="success-message">
+            <span>✅</span> {{ success() }}
+        </div>
+        }
+
+        @if (!otpStep()) {
+        <!-- Step 1: Registration Form -->
+        <form (ngSubmit)="onSubmit()" class="auth-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="firstName">First Name</label>
+                    <input id="firstName" type="text" [(ngModel)]="firstName" name="firstName" placeholder="First name"
+                        required [disabled]="loading()" />
+                </div>
+                <div class="form-group">
+                    <label for="lastName">Last Name</label>
+                    <input id="lastName" type="text" [(ngModel)]="lastName" name="lastName" placeholder="Last name"
+                        required [disabled]="loading()" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input id="email" type="email" [(ngModel)]="email" name="email" placeholder="you@example.com" required
+                    [disabled]="loading()" />
+                @if (email.length > 0 && !isEmailValid) {
+                <span class="field-error">Please enter a valid email address</span>
+                }
+            </div>
+
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input id="username" type="text" [(ngModel)]="username" name="username"
+                    placeholder="Choose a username (min 3 chars)" required minlength="3" [disabled]="loading()" />
+                @if (username.length > 0 && username.length < 3) { <span class="field-error">Username must be at least 3
+                    characters</span>
+                    }
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone</label>
+                <input id="phone" type="tel" [(ngModel)]="phone" name="phone" placeholder="10-digit phone number"
+                    required [disabled]="loading()" maxlength="14" />
+                @if (phone.length > 0 && !isPhoneValid) {
+                <span class="field-error">Phone number must be exactly 10 digits</span>
+                }
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="password-wrapper">
+                    <input id="password" [type]="showPassword() ? 'text' : 'password'" [(ngModel)]="password"
+                        name="password" placeholder="Minimum 8 characters" required minlength="8"
+                        [disabled]="loading()" />
+                    <button type="button" class="toggle-password" (click)="togglePassword()">
+                        {{ showPassword() ? '🙈' : '👁️' }}
+                    </button>
+                </div>
+                @if (password.length > 0 && password.length < 8) { <span class="field-error">Password must be at least 8
+                    characters</span>
+                    }
+            </div>
+
+            <button type="submit" class="btn-primary" [disabled]="loading() || !isFormValid">
+                @if (loading()) {
+                <span class="spinner"></span> Creating account...
+                } @else {
+                Create Account
+                }
+            </button>
+        </form>
+        } @else {
+        <!-- Step 2: OTP Verification -->
+        <form (ngSubmit)="onVerifyOTP()" class="auth-form">
+            <div class="otp-info">
+                <p>We sent a 6-digit code to <strong>{{ maskedEmail }}</strong></p>
+            </div>
+
+            <div class="form-group">
+                <label for="otp">Verification Code</label>
+                <input id="otp" type="text" [(ngModel)]="otpCode" name="otp" placeholder="Enter 6-digit code"
+                    maxlength="6" class="otp-input" [disabled]="loading()" autocomplete="one-time-code" />
+            </div>
+
+            <button type="submit" class="btn-primary" [disabled]="loading() || otpCode.length !== 6">
+                @if (loading()) {
+                <span class="spinner"></span> Verifying...
+                } @else {
+                Verify & Create Account
+                }
+            </button>
+
+            <div class="otp-actions">
+                <button type="button" class="btn-link" (click)="resendOTP()" [disabled]="resendCooldown() > 0">
+                    @if (resendCooldown() > 0) {
+                    Resend in {{ resendCooldown() }}s
+                    } @else {
+                    Resend Code
+                    }
+                </button>
+                <button type="button" class="btn-link" (click)="backToForm()">← Back</button>
+            </div>
+        </form>
+        }
+
+        <div class="auth-footer">
+            <p>Already have an account? <a routerLink="/login">Sign in</a></p>
+        </div>
+    </div>
+</div>
