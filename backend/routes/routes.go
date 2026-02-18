@@ -12,6 +12,7 @@ import (
 func Setup(
 	router *gin.Engine,
 	authHandler *handlers.AuthHandler,
+	walletHandler *handlers.WalletHandler,
 	tokenService *services.TokenService,
 ) {
 	api := router.Group("/api/v1")
@@ -29,5 +30,12 @@ func Setup(
 		auth.GET("/me", middleware.AuthMiddleware(tokenService), authHandler.GetMe)
 	}
 
-
+	// Wallet routes (protected)
+	wallet := api.Group("/wallet")
+	wallet.Use(middleware.AuthMiddleware(tokenService))
+	{
+		wallet.POST("/add", walletHandler.AddMoney)
+		wallet.POST("/withdraw", walletHandler.Withdraw)
+		wallet.GET("/transactions", walletHandler.GetTransactions)
+	}
 }
