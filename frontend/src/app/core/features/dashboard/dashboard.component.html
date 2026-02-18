@@ -1,0 +1,99 @@
+<div class="dashboard">
+    <!-- Balance Card -->
+    <div class="balance-card">
+        <div class="balance-header">
+            <span class="balance-label">Total Balance</span>
+            <span class="currency-badge">{{ wallet()?.currency || 'USD' }}</span>
+        </div>
+        @if (loading()) {
+        <div class="skeleton skeleton-balance"></div>
+        } @else {
+        <h1 class="balance-amount">{{ getFormattedBalance() }}</h1>
+        }
+        <div class="balance-footer">
+            <span class="kyc-indicator" [class]="'kyc-' + (user()?.kyc_status || 'pending')">
+                @switch (user()?.kyc_status) {
+                @case ('verified') { ✅ Verified }
+                @case ('rejected') { ❌ Rejected }
+                @default { ⏳ Pending KYC }
+                }
+            </span>
+            <span class="credit-score">Credit Score: {{ user()?.credit_score || 650 }}</span>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="section-header">
+        <h3>Quick Actions</h3>
+    </div>
+    <div class="quick-actions">
+        @for (action of quickActions; track action.label) {
+        <a [routerLink]="action.route" class="action-card" [style.--accent]="action.color">
+            <div class="action-icon">{{ action.icon }}</div>
+            <span class="action-label">{{ action.label }}</span>
+        </a>
+        }
+    </div>
+
+    <!-- Stats Row -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <span class="stat-icon">💰</span>
+            <div class="stat-info">
+                <span class="stat-value">{{ getFormattedBalance() }}</span>
+                <span class="stat-label">Available</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <span class="stat-icon">📈</span>
+            <div class="stat-info">
+                <span class="stat-value">{{ user()?.credit_score || 650 }}</span>
+                <span class="stat-label">Credit Score</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <span class="stat-icon">🔐</span>
+            <div class="stat-info">
+                <span class="stat-value">{{ (user()?.kyc_status || 'pending') | titlecase }}</span>
+                <span class="stat-label">KYC Status</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="section-header">
+        <h3>Recent Transactions</h3>
+        <a routerLink="/transactions" class="view-all">View All →</a>
+    </div>
+
+    @if (loading()) {
+    <div class="transaction-list">
+        @for (i of [1,2,3]; track i) {
+        <div class="skeleton skeleton-transaction"></div>
+        }
+    </div>
+    } @else if (recentTransactions().length === 0) {
+    <div class="empty-state">
+        <span class="empty-icon">📭</span>
+        <p>No transactions yet. Add money to get started!</p>
+    </div>
+    } @else {
+    <div class="transaction-list">
+        @for (tx of recentTransactions(); track tx.id) {
+        <div class="transaction-item">
+            <div class="tx-icon" [class.tx-deposit]="tx.type === 'deposit'"
+                [class.tx-withdraw]="tx.type === 'withdraw'">
+                {{ tx.type === 'deposit' ? '↗️' : '↙️' }}
+            </div>
+            <div class="tx-details">
+                <span class="tx-description">{{ tx.description }}</span>
+                <span class="tx-date">{{ tx.created_at | date:'short' }}</span>
+            </div>
+            <div class="tx-amount" [class.positive]="tx.type === 'deposit'" [class.negative]="tx.type === 'withdraw'">
+                {{ tx.type === 'deposit' ? '+' : '-' }}${{ tx.amount }}
+            </div>
+        </div>
+        }
+    </div>
+    }
+</div>
