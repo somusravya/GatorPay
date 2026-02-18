@@ -1,0 +1,48 @@
+<div class="transactions-page">
+    <div class="page-header">
+        <h2>Transaction History</h2>
+        <span class="total-count">{{ total() }} transactions</span>
+    </div>
+
+    @if (loading()) {
+    <div class="transaction-list">
+        @for (i of [1,2,3,4,5]; track i) {
+        <div class="skeleton skeleton-tx"></div>
+        }
+    </div>
+    } @else if (transactions().length === 0) {
+    <div class="empty-state">
+        <span class="empty-icon">📭</span>
+        <p>No transactions yet. Add money to your wallet to get started!</p>
+    </div>
+    } @else {
+    <div class="transaction-list">
+        @for (tx of transactions(); track tx.id) {
+        <div class="transaction-item">
+            <div class="tx-icon" [class.tx-deposit]="tx.type === 'deposit'"
+                [class.tx-withdraw]="tx.type === 'withdraw'">
+                {{ tx.type === 'deposit' ? '↗️' : '↙️' }}
+            </div>
+            <div class="tx-details">
+                <span class="tx-description">{{ tx.description }}</span>
+                <span class="tx-meta">
+                    {{ tx.created_at | date:'medium' }} · {{ tx.status | uppercase }}
+                </span>
+            </div>
+            <div class="tx-amount" [class.positive]="tx.type === 'deposit'" [class.negative]="tx.type === 'withdraw'">
+                {{ tx.type === 'deposit' ? '+' : '-' }}${{ tx.amount }}
+            </div>
+        </div>
+        }
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages() > 1) {
+    <div class="pagination">
+        <button (click)="prevPage()" [disabled]="currentPage() <= 1">← Previous</button>
+        <span class="page-info">Page {{ currentPage() }} of {{ totalPages() }}</span>
+        <button (click)="nextPage()" [disabled]="currentPage() >= totalPages()">Next →</button>
+    </div>
+    }
+    }
+</div>
