@@ -1,6 +1,6 @@
 # 🏃 Sprint 1 – Core Foundation & Authentication
 
-Sprint Duration: Jan 6 – Jan 19, 2026  
+Sprint Duration: Feb 3 – Feb 18, 2026  
 Sprint Goal: Build authentication system, wallet management, and establish core frontend + backend architecture.
 
 ---
@@ -183,7 +183,25 @@ Completion Rate: 100%
 
 ---
 
-# 📊 8. Sprint Metrics
+# 📊 8. How to Run the Project
+
+cd backend && go mod tidy && go run main.go
+
+The backend server runs on:
+http://localhost:8080
+
+---
+
+## Frontend (Terminal 2)
+
+cd frontend && npm install && npx ng serve --no-hmr --port 4200
+
+The frontend runs on:
+http://localhost:4200
+
+---
+
+## sprint metrics
 
 Total Issues: 19  
 Total Story Points: 81  
@@ -194,28 +212,28 @@ Completion Rate: 100%
 
 # 👨‍💻 9. Team Contribution
 
-Backend Developer 1  
+Backend Developer 1  - Tharun Kamsala
 - Authentication APIs  
 - Google OAuth  
 - JWT Middleware  
 - Get Current User API  
 Story Points: 18  
 
-Backend Developer 2  
+Backend Developer 2  - Kaushik Ramesh
 - Database setup  
 - Models  
 - Wallet service  
 - Add/Withdraw APIs  
 Story Points: 23  
 
-Frontend Developer 1  
+Frontend Developer 1  - Shivankitha K
 - Login & Registration UI  
 - AuthService  
 - Route Guards  
 - HTTP Interceptor  
 Story Points: 21  
 
-Frontend Developer 2  
+Frontend Developer 2  - Somu Geetha Sravya
 - Layout & Navigation  
 - Dashboard  
 - Quick Actions  
