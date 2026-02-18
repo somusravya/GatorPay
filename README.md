@@ -116,7 +116,7 @@ We're creating a web application with three main parts:
 ### Backend
 - **Go (Golang)** - For building fast, reliable servers
 - **Gin Framework** - For handling web requests
-- **SQLite Database** - For storing all data
+- **PostgreSQL Database** - For storing all data
 - **JWT Tokens** - For secure authentication
 
 ### External Services
@@ -165,7 +165,7 @@ Angular Frontend (Port 4200)
 │           ▼                           ▼                         │
 │  ┌─────────────────┐         ┌─────────────────┐                │
 │  │  gatorpay.db    │         │   trading.db    │                │
-│  │  (SQLite)       │         │   (SQLite)      │                │
+│  │  (PostgreSQL)   │         │  (PostgreSQL)   │                │
 │  └─────────────────┘         └─────────────────┘                │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
