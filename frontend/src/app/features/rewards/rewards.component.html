@@ -1,0 +1,89 @@
+<div class="rewards-page">
+    <div class="page-header">
+        <h1>🎁 Rewards</h1>
+        <p class="subtitle">Earn cashback and points on every transaction</p>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="summary-cards">
+        <div class="summary-card points-card">
+            <span class="card-icon">⭐</span>
+            <div class="card-content">
+                <span class="card-value">{{ summary()?.total_points || 0 }}</span>
+                <span class="card-label">GatorPoints</span>
+            </div>
+        </div>
+        <div class="summary-card cashback-card">
+            <span class="card-icon">💰</span>
+            <div class="card-content">
+                <span class="card-value">{{ formatCurrency(summary()?.total_cashback || '0') }}</span>
+                <span class="card-label">Total Cashback</span>
+            </div>
+        </div>
+        <div class="summary-card lifetime-card">
+            <span class="card-icon">📈</span>
+            <div class="card-content">
+                <span class="card-value">{{ formatCurrency(summary()?.lifetime_earnings || '0') }}</span>
+                <span class="card-label">Lifetime Earnings</span>
+            </div>
+        </div>
+        <div class="summary-card tx-card">
+            <span class="card-icon">🔄</span>
+            <div class="card-content">
+                <span class="card-value">{{ summary()?.total_transactions || 0 }}</span>
+                <span class="card-label">Reward Transactions</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Offers -->
+    <div class="section">
+        <h3 class="section-title">🏷️ Available Offers</h3>
+        <div class="offers-grid">
+            @for (offer of offers(); track offer.id) {
+            <div class="offer-card">
+                <div class="offer-header">
+                    <span class="offer-icon">{{ offer.icon }}</span>
+                    <span class="offer-discount">{{ offer.discount }}</span>
+                </div>
+                <h4>{{ offer.title }}</h4>
+                <p>{{ offer.description }}</p>
+            </div>
+            }
+        </div>
+    </div>
+
+    <!-- History -->
+    <div class="section">
+        <h3 class="section-title">📜 Reward History</h3>
+        @if (rewards().length === 0) {
+        <div class="empty-state">
+            <span>🎯</span>
+            <p>No rewards yet. Start transacting to earn cashback!</p>
+        </div>
+        } @else {
+        <div class="history-list">
+            @for (reward of rewards(); track reward.id) {
+            <div class="history-item">
+                <div class="history-left">
+                    <span class="history-icon">💰</span>
+                    <div class="history-info">
+                        <span class="history-desc">{{ reward.description }}</span>
+                        <span class="history-date">{{ reward.created_at | date:'medium' }}</span>
+                    </div>
+                </div>
+                <div class="history-right">
+                    <span class="history-amount">+{{ formatCurrency(reward.amount) }}</span>
+                    <span class="history-points">+{{ reward.points }} pts</span>
+                </div>
+            </div>
+            }
+        </div>
+        <div class="pagination">
+            <button (click)="prevPage()" [disabled]="historyPage <= 1">← Previous</button>
+            <span>Page {{ historyPage }}</span>
+            <button (click)="nextPage()" [disabled]="rewards().length < 10">Next →</button>
+        </div>
+        }
+    </div>
+</div>

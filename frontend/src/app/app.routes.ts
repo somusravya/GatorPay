@@ -39,6 +39,26 @@ export const routes: Routes = [
                 path: 'transactions',
                 loadComponent: () =>
                     import('./features/wallet/transactions/transactions.component').then(m => m.TransactionsComponent)
+            },
+            {
+                path: 'transfer',
+                loadComponent: () =>
+                    import('./features/transfer/transfer.component').then(m => m.TransferComponent)
+            },
+            {
+                path: 'bills',
+                loadComponent: () =>
+                    import('./features/bills/bills.component').then(m => m.BillsComponent)
+            },
+            {
+                path: 'rewards',
+                loadComponent: () =>
+                    import('./features/rewards/rewards.component').then(m => m.RewardsComponent)
+            },
+            {
+                path: 'profile',
+                loadComponent: () =>
+                    import('./features/profile/profile.component').then(m => m.ProfileComponent)
             }
         ]
     },
