@@ -21,13 +21,38 @@
                 <span>Wallet</span>
                 }
             </a>
+            <a routerLink="/transfer" routerLinkActive="active" class="nav-item">
+                <span class="nav-icon">💸</span>
+                @if (!sidebarCollapsed()) {
+                <span>Transfer</span>
+                }
+            </a>
+            <a routerLink="/bills" routerLinkActive="active" class="nav-item">
+                <span class="nav-icon">📄</span>
+                @if (!sidebarCollapsed()) {
+                <span>Bills</span>
+                }
+            </a>
             <a routerLink="/transactions" routerLinkActive="active" class="nav-item">
                 <span class="nav-icon">📜</span>
                 @if (!sidebarCollapsed()) {
                 <span>Transactions</span>
                 }
             </a>
+            <a routerLink="/rewards" routerLinkActive="active" class="nav-item">
+                <span class="nav-icon">🎁</span>
+                @if (!sidebarCollapsed()) {
+                <span>Rewards</span>
+                }
+            </a>
+            <a routerLink="/profile" routerLinkActive="active" class="nav-item">
+                <span class="nav-icon">👤</span>
+                @if (!sidebarCollapsed()) {
+                <span>Profile</span>
+                }
+            </a>
         </nav>
+
 
         <div class="sidebar-footer">
             <button class="nav-item logout-btn" (click)="logout()">
