@@ -1,0 +1,87 @@
+<div class="profile-page">
+    <div class="page-header">
+        <h1>👤 Profile</h1>
+    </div>
+
+    <!-- User Card -->
+    <div class="profile-card">
+        <div class="avatar-section">
+            <div class="avatar-large">
+                @if (user()?.avatar_url) {
+                <img [src]="user()?.avatar_url" alt="Avatar" />
+                } @else {
+                <span>{{ userInitials() }}</span>
+                }
+            </div>
+            <h2>{{ fullName() }}</h2>
+            <span class="username">&#64;{{ user()?.username }}</span>
+        </div>
+    </div>
+
+    <!-- Info Section -->
+    <div class="info-card">
+        <h3 class="section-title">Account Details</h3>
+        <div class="info-row">
+            <span class="info-label">📧 Email</span>
+            <span class="info-value">{{ user()?.email }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">📱 Phone</span>
+            <span class="info-value">{{ user()?.phone }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">🔐 Auth Provider</span>
+            <span class="info-value">{{ (user()?.auth_provider || 'local') | titlecase }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">📅 Member Since</span>
+            <span class="info-value">{{ memberSince() }}</span>
+        </div>
+    </div>
+
+    <!-- Status Section -->
+    <div class="info-card">
+        <h3 class="section-title">Status</h3>
+        <div class="info-row">
+            <span class="info-label">✉️ Email Verified</span>
+            <span class="status-badge" [class.verified]="user()?.email_verified"
+                [class.pending]="!user()?.email_verified">
+                {{ user()?.email_verified ? 'Verified' : 'Pending' }}
+            </span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">🪪 KYC Status</span>
+            <span class="status-badge" [ngClass]="'kyc-' + (user()?.kyc_status || 'pending')">
+                {{ (user()?.kyc_status || 'pending') | titlecase }}
+            </span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">📊 Credit Score</span>
+            <span class="info-value credit-score">{{ user()?.credit_score || 650 }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">💰 Balance</span>
+            <span class="info-value balance">{{ getFormattedBalance() }}</span>
+        </div>
+    </div>
+
+    <!-- Settings -->
+    <div class="info-card">
+        <h3 class="section-title">Quick Links</h3>
+        <a routerLink="/wallet" class="settings-link">
+            <span>💰 Wallet</span>
+            <span class="arrow">→</span>
+        </a>
+        <a routerLink="/transactions" class="settings-link">
+            <span>📜 Transaction History</span>
+            <span class="arrow">→</span>
+        </a>
+        <a routerLink="/rewards" class="settings-link">
+            <span>🎁 Rewards</span>
+            <span class="arrow">→</span>
+        </a>
+    </div>
+
+    <!-- Logout -->
+    <button class="logout-btn" (click)="logout()">🚪 Logout</button>
+</div>
