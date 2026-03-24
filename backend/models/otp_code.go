@@ -11,6 +11,7 @@ import (
 const (
 	OTPPurposeRegister = "register"
 	OTPPurposeLogin    = "login"
+	OTPPurposeTransfer = "transfer"
 )
 
 // OTPCode stores verification codes for 2-step authentication
@@ -18,9 +19,11 @@ type OTPCode struct {
 	ID        string    `gorm:"type:varchar(36);primaryKey" json:"id"`
 	UserID    string    `gorm:"type:varchar(36);index;not null" json:"user_id"`
 	Code      string    `gorm:"type:varchar(6);not null" json:"-"`
-	Purpose   string    `gorm:"type:varchar(20);not null" json:"purpose"` // register, login
+	Purpose   string    `gorm:"type:varchar(20);not null" json:"purpose"` // register, login, transfer
 	ExpiresAt time.Time `gorm:"not null" json:"expires_at"`
 	Used      bool      `gorm:"default:false" json:"used"`
+	Attempts  int       `gorm:"default:0" json:"attempts"`
+	Verified  bool      `gorm:"default:false" json:"verified"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
