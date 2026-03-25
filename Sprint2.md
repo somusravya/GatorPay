@@ -64,6 +64,11 @@ npx ng test --watch=false --browsers=ChromeHeadless
 | Test File | Tests | Description |
 |-----------|-------|-------------|
 | `cypress/e2e/login.cy.ts` | 4 | display login form, fill email/password, click submit button, register link exists |
+| `cypress/e2e/register.cy.ts` | 3 | display form fields, verify typing constraints, register to login navigation |
+| `cypress/e2e/dashboard.cy.ts` | 4 | display welcome message, wallet balance, quick actions, recent transactions |
+| `cypress/e2e/wallet.cy.ts` | 5 | wallet balance, add/withdraw buttons, history section, reward stats, active offers |
+| `cypress/e2e/transfer.cy.ts` | 3 | display transfer form, show balance, recent contacts loaded |
+| `cypress/e2e/bills.cy.ts` | 3 | display categories, render saved billers, navigation button |
 
 **Cypress config:** `frontend/cypress.config.js`
 
