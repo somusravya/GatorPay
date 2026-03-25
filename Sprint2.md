@@ -1,5 +1,56 @@
 # Sprint 2 — GatorPay
 
+## Features Implemented for Sprint 2
+
+### Backend Integrated Features
+- **P2P Transfers:** Direct peer-to-peer transfers with automated 1% cashback logic.
+- **Bill Payments:** Integrated categorized bills, user-saved billers, and 2% cashback.
+- **Rewards System:** Robust rewards ledger tracking lifetimes earnings, point allocations, and promotional offers.
+- **Wallet Operations:** Dynamic top-ups (`add`), bank transfers (`withdraw`), and paginated transaction histories.
+- **Advanced Authentication:** 6-digit email OTPs required for both registration and login, tied into a robust JWT architecture.
+- **Google OAuth:** Seamless social authentication integration.
+
+### Frontend Integrated Features
+- **Sophisticated Auth flows:** Secure login and registration incorporating real-time validation, OTP input, and password visibility toggling.
+- **Dynamic User Dashboard:** Live wallet balances, quick action navigators, and unified recent transaction views.
+- **Wallet Interface:** Deposit and withdraw modal interactions with complete historical transaction tables.
+- **Transfer Interface:** User auto-search, contact history retrieval, and balance-aware transactional inputs.
+- **Bill Pay Interfaces:** Intuitive category filtering, biller lookup, and preserved favorite lists for one-click payments.
+- **Rewards Interface:** Gamified point visualizations mapping back to lifetime savings and active promotional offerings.
+
+---
+
+## Execution Commands
+
+Use the following commands from the root directory to execute and validate the core modules of this sprint.
+
+### 1. Run Backend Unit Tests (Go)
+```bash
+cd backend && go test ./... -v
+```
+
+### 2. Run the Frontend Angular Application
+```bash
+cd frontend && npx ng serve
+```
+
+### 3. Run Frontend E2E Tests (Cypress Headless)
+```bash
+cd frontend && npx cypress run
+```
+
+### 4. Interactive Cypress Testing (UI)
+```bash
+cd frontend
+npm run cypress:open
+```
+
+### 5. Run Frontend Unit Tests (Jasmine / Karma)
+```bash
+cd frontend
+npm run test
+```
+
 ## Work Completed in Sprint 2
 
 ### Backend Features Implemented
