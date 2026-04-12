@@ -1,0 +1,124 @@
+<div class="bills-page">
+    <div class="page-header">
+        <h1>📄 Pay Bills</h1>
+        <p class="subtitle">Pay utility bills and earn 2% cashback</p>
+    </div>
+
+    <!-- Success Modal -->
+    @if (showSuccess()) {
+    <div class="modal-overlay" (click)="closeSuccess()">
+        <div class="success-modal" (click)="$event.stopPropagation()">
+            <div class="success-icon">✅</div>
+            <h2>Bill Paid!</h2>
+            <p>{{ successMessage() }}</p>
+            <p class="cashback-note">🎉 You earned 2% cashback on this payment!</p>
+            <button class="btn-primary" (click)="closeSuccess()">Done</button>
+        </div>
+    </div>
+    }
+
+    <!-- Error -->
+    @if (errorMessage()) {
+    <div class="error-banner">
+        <span>❌ {{ errorMessage() }}</span>
+        <button (click)="errorMessage.set('')">✕</button>
+    </div>
+    }
+
+    <!-- Selected Biller Payment Form -->
+    @if (selectedBiller()) {
+    <div class="payment-form-card">
+        <div class="form-header">
+            <div class="biller-badge">
+                <span class="biller-icon-large">{{ selectedBiller()?.icon }}</span>
+                <div>
+                    <h3>{{ selectedBiller()?.name }}</h3>
+                    <span class="biller-category">{{ selectedBiller()?.category | titlecase }}</span>
+                </div>
+            </div>
+            <button class="clear-btn" (click)="clearBiller()">✕</button>
+        </div>
+
+        <div class="form-fields">
+            <div class="field">
+                <label>Account Number</label>
+                <input type="text" placeholder="Enter account number" [(ngModel)]="accountNumber" />
+            </div>
+            <div class="field">
+                <label>Amount</label>
+                <div class="amount-input-wrapper">
+                    <span class="currency-sign">$</span>
+                    <input type="number" placeholder="0.00" [(ngModel)]="amount" min="0.01" step="0.01" />
+                </div>
+            </div>
+            <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="saveBiller" />
+                <span>Save this biller for quick payments</span>
+            </label>
+        </div>
+
+        <button class="pay-btn" (click)="payBill()" [disabled]="loading() || amount <= 0 || !accountNumber">
+            @if (loading()) {
+            <span>Processing...</span>
+            } @else {
+            <span>Pay ${{ amount > 0 ? amount.toFixed(2) : '0.00' }}</span>
+            }
+        </button>
+    </div>
+    } @else {
+
+    <!-- Saved Billers -->
+    @if (savedBillers().length > 0) {
+    <div class="section">
+        <h3 class="section-title">⭐ Saved Billers</h3>
+        <div class="saved-billers-grid">
+            @for (saved of savedBillers(); track saved.id) {
+            <div class="saved-biller-card" (click)="selectSavedBiller(saved)">
+                <div class="saved-biller-info">
+                    <span class="saved-icon">{{ saved.biller.icon }}</span>
+                    <div>
+                        <span class="saved-name">{{ saved.biller.name }}</span>
+                        <span class="saved-acct">Acct: {{ saved.account_number }}</span>
+                    </div>
+                </div>
+                <button class="remove-btn" (click)="removeSavedBiller(saved.id); $event.stopPropagation()">🗑️</button>
+            </div>
+            }
+        </div>
+    </div>
+    }
+
+    <!-- Category Tabs -->
+    <div class="section">
+        <h3 class="section-title">Categories</h3>
+        <div class="category-tabs">
+            <button class="category-tab" [class.active]="selectedCategory() === ''"
+                (click)="selectCategory('')">All</button>
+            @for (cat of categories(); track cat) {
+            <button class="category-tab" [class.active]="selectedCategory() === cat" (click)="selectCategory(cat)">{{
+                cat | titlecase }}</button>
+            }
+        </div>
+    </div>
+
+    <!-- Billers Grid -->
+    <div class="section">
+        <h3 class="section-title">Billers</h3>
+        <div class="billers-grid">
+            @for (biller of billers(); track biller.id) {
+            <div class="biller-card" (click)="selectBiller(biller)">
+                <span class="biller-icon">{{ biller.icon }}</span>
+                <span class="biller-name">{{ biller.name }}</span>
+                <span class="biller-cat">{{ biller.category | titlecase }}</span>
+            </div>
+            }
+        </div>
+        @if (billers().length === 0) {
+        <div class="empty-state">
+            <span>📭</span>
+            <p>No billers found</p>
+        </div>
+        }
+    </div>
+    }
+</div>

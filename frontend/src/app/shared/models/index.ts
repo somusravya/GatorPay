@@ -27,11 +27,15 @@ export interface Wallet {
 export interface Transaction {
   id: string;
   wallet_id: string;
+  from_user_id: string;
+  to_user_id: string;
   type: string;
   amount: string;
   description: string;
   status: string;
   created_at: string;
+  from_user?: User;
+  to_user?: User;
 }
 
 export interface ApiResponse<T> {
@@ -94,4 +98,86 @@ export interface AddMoneyRequest {
 export interface WithdrawRequest {
   amount: number;
   bank_account: string;
+}
+// Sprint 2 interfaces
+
+export interface TransferRequest {
+  recipient: string;
+  amount: number;
+  note: string;
+}
+
+export interface TransferResponse {
+  transaction_id: string;
+  recipient: User;
+  amount: string;
+  note: string;
+  new_balance: string;
+}
+
+export interface Biller {
+  id: string;
+  name: string;
+  category: string;
+  icon: string;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface SavedBiller {
+  id: string;
+  user_id: string;
+  biller_id: string;
+  account_number: string;
+  nickname: string;
+  created_at: string;
+  biller: Biller;
+}
+
+export interface BillPayRequest {
+  biller_id: string;
+  account_number: string;
+  amount: number;
+  save_biller: boolean;
+}
+
+export interface BillPayResponse {
+  payment_id: string;
+  biller: Biller;
+  amount: string;
+  new_balance: string;
+}
+
+export interface RewardSummary {
+  total_points: number;
+  total_cashback: string;
+  lifetime_earnings: string;
+  total_transactions: number;
+}
+
+export interface Reward {
+  id: string;
+  user_id: string;
+  type: string;
+  amount: string;
+  points: number;
+  transaction_id: string;
+  description: string;
+  created_at: string;
+}
+
+export interface RewardHistoryResponse {
+  rewards: Reward[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface Offer {
+  id: string;
+  title: string;
+  description: string;
+  discount: string;
+  icon: string;
+  is_active: boolean;
 }

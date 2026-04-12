@@ -38,4 +38,9 @@ export class WalletService {
     refreshWallet(): void {
         this.authService.getMe();
     }
+
+    /** Download wallet statement */
+    downloadStatement(format: string, start: string, end: string) {
+        return this.http.get(`${this.apiUrl}/statement?format=${format}&start=${start}&end=${end}`, { responseType: 'blob' });
+    }
 }

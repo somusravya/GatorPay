@@ -21,13 +21,64 @@
                 <span>Wallet</span>
                 }
             </a>
+            <a routerLink="/transfer" routerLinkActive="active" class="nav-item">
+                <span class="nav-icon">💸</span>
+                @if (!sidebarCollapsed()) {
+                <span>Transfer</span>
+                }
+            </a>
+            <a routerLink="/bills" routerLinkActive="active" class="nav-item">
+                <span class="nav-icon">📄</span>
+                @if (!sidebarCollapsed()) {
+                <span>Bills</span>
+                }
+            </a>
             <a routerLink="/transactions" routerLinkActive="active" class="nav-item">
                 <span class="nav-icon">📜</span>
                 @if (!sidebarCollapsed()) {
                 <span>Transactions</span>
                 }
             </a>
+            <a routerLink="/rewards" routerLinkActive="active" class="nav-item">
+                <span class="nav-icon">🎁</span>
+                @if (!sidebarCollapsed()) {
+                <span>Rewards</span>
+                }
+            </a>
+
+            <!-- SPRINT 3 ADVANCED FEATURES -->
+            <a routerLink="/trading" routerLinkActive="active" class="nav-item">
+                <span class="nav-icon">📈</span>
+                @if (!sidebarCollapsed()) {
+                <span>Trading</span>
+                }
+            </a>
+            <a routerLink="/loans" routerLinkActive="active" class="nav-item">
+                <span class="nav-icon">🏦</span>
+                @if (!sidebarCollapsed()) {
+                <span>Loans</span>
+                }
+            </a>
+            <a routerLink="/cards" routerLinkActive="active" class="nav-item">
+                <span class="nav-icon">💳</span>
+                @if (!sidebarCollapsed()) {
+                <span>Virtual Cards</span>
+                }
+            </a>
+            <a routerLink="/scan" routerLinkActive="active" class="nav-item">
+                <span class="nav-icon">📷</span>
+                @if (!sidebarCollapsed()) {
+                <span>Scan QR</span>
+                }
+            </a>
+            <a routerLink="/profile" routerLinkActive="active" class="nav-item">
+                <span class="nav-icon">👤</span>
+                @if (!sidebarCollapsed()) {
+                <span>Profile</span>
+                }
+            </a>
         </nav>
+
 
         <div class="sidebar-footer">
             <button class="nav-item logout-btn" (click)="logout()">
