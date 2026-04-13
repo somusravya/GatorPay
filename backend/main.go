@@ -38,6 +38,7 @@ func main() {
 	rewardService := services.NewRewardService(database.DB)
 	transferService := services.NewTransferService(database.DB, rewardService)
 	billService := services.NewBillService(database.DB, rewardService)
+	qrService := services.NewQRService(database.DB)
 
 	// Initialize handlers
 	authHandler := handlers.NewAuthHandler(authService)
@@ -45,6 +46,7 @@ func main() {
 	transferHandler := handlers.NewTransferHandler(transferService)
 	billHandler := handlers.NewBillHandler(billService)
 	rewardHandler := handlers.NewRewardHandler(rewardService)
+	qrHandler := handlers.NewQRHandler(qrService)
 
 	// Setup Gin router
 	router := gin.Default()
@@ -60,7 +62,7 @@ func main() {
 	}))
 
 	// Setup routes
-	routes.Setup(router, authHandler, walletHandler, transferHandler, billHandler, rewardHandler, tokenService)
+	routes.Setup(router, authHandler, walletHandler, transferHandler, billHandler, rewardHandler, qrHandler, tokenService)
 
 	// Start server
 	log.Printf("🚀 GatorPay Backend running on port %s", cfg.Port)

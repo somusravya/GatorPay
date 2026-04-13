@@ -16,6 +16,7 @@ func Setup(
 	transferHandler *handlers.TransferHandler,
 	billHandler *handlers.BillHandler,
 	rewardHandler *handlers.RewardHandler,
+	qrHandler *handlers.QRHandler,
 	tokenService *services.TokenService,
 ) {
 	api := router.Group("/api/v1")
@@ -69,5 +70,14 @@ func Setup(
 		rewards.GET("", rewardHandler.GetSummary)
 		rewards.GET("/history", rewardHandler.GetHistory)
 		rewards.GET("/offers", rewardHandler.GetOffers)
+	}
+
+	// QR merchant / payments (protected)
+	qr := api.Group("/qr")
+	qr.Use(middleware.AuthMiddleware(tokenService))
+	{
+		qr.POST("/merchant/register", qrHandler.RegisterMerchant)
+		qr.POST("/generate", qrHandler.GenerateQR)
+		qr.POST("/pay", qrHandler.PayViaQR)
 	}
 }
