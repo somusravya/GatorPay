@@ -115,4 +115,20 @@ export class WalletComponent {
             }
         });
     }
+    downloadStatement(format: 'csv' | 'pdf'): void {
+        const start = '2020-01-01';
+        const end = new Date().toISOString().split('T')[0];
+        
+        this.walletService.downloadStatement(format, start, end).subscribe({
+            next: (blob: Blob) => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `statement.${format}`;
+                a.click();
+                window.URL.revokeObjectURL(url);
+            },
+            error: () => alert('Failed to download statement')
+        });
+    }
 }

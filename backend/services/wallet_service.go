@@ -154,8 +154,11 @@ func (s *WalletService) GetTransactions(userID string, page, limit int) (*Transa
 	if page < 1 {
 		page = 1
 	}
-	if limit < 1 || limit > 50 {
-		limit = 10
+	if limit < 1 {
+		limit = 20
+	}
+	if limit > 100 {
+		limit = 100
 	}
 
 	var wallet models.Wallet
@@ -164,11 +167,15 @@ func (s *WalletService) GetTransactions(userID string, page, limit int) (*Transa
 	}
 
 	var total int64
-	s.db.Model(&models.Transaction{}).Where("wallet_id = ?", wallet.ID).Count(&total)
+	s.db.Model(&models.Transaction{}).
+		Where("wallet_id = ? OR from_user_id = ? OR to_user_id = ?", wallet.ID, userID, userID).
+		Count(&total)
 
 	var transactions []models.Transaction
 	offset := (page - 1) * limit
-	if err := s.db.Where("wallet_id = ?", wallet.ID).
+	if err := s.db.Where("wallet_id = ? OR from_user_id = ? OR to_user_id = ?", wallet.ID, userID, userID).
+		Preload("FromUser").
+		Preload("ToUser").
 		Order("created_at DESC").
 		Offset(offset).
 		Limit(limit).
