@@ -1,0 +1,194 @@
+.trading-container {
+  min-height: calc(100vh - 64px);
+  background-color: #0b0e14; /* Deep professional slate */
+  color: #f1f5f9;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 1.25rem;
+  padding: 1.25rem;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.glass {
+  background: rgba(30, 41, 59, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.4);
+}
+
+.market-banner {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 2rem;
+  padding: 0.75rem 1.5rem;
+  background: #111827;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  border-radius: 0;
+  margin-bottom: -1.25rem; /* pull up */
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+
+.market-item {
+  display: flex;
+  flex-direction: column;
+  min-width: 120px;
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.right-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.price-display {
+  display: flex;
+  flex-direction: column;
+}
+
+.price-flash-up {
+  color: #10b981 !important;
+  text-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
+  animation: flash-green 1s ease-out;
+}
+
+.price-flash-down {
+  color: #ef4444 !important;
+  text-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
+  animation: flash-red 1s ease-out;
+}
+
+.badge-green {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.badge-red {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Order Execution Panel */
+.order-panel {
+  background: rgba(22, 30, 46, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.type-toggle {
+  display: flex;
+  background: rgba(0,0,0,0.2);
+  border-radius: 8px;
+  padding: 4px;
+  margin-bottom: 1rem;
+}
+
+.type-toggle button {
+  flex: 1;
+  padding: 8px;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.type-toggle button.active-buy {
+  background: #10b981;
+  color: white;
+}
+
+.type-toggle button.active-sell {
+  background: #ef4444;
+  color: white;
+}
+
+/* Input Fields */
+.input {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  transition: border-color 0.2s;
+}
+
+.input:focus {
+  border-color: #3b82f6;
+  outline: none;
+}
+
+/* Base Buttons */
+.btn-trade-buy {
+  background: #10b981;
+  color: white;
+  border: none;
+  height: 48px;
+  font-weight: bold;
+  font-size: 1.1rem;
+  transition: transform 0.1s, box-shadow 0.2s;
+}
+.btn-trade-buy:hover { background: #059669; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3); }
+
+.btn-trade-sell {
+  background: #ef4444;
+  color: white;
+  border: none;
+  height: 48px;
+  font-weight: bold;
+  font-size: 1.1rem;
+  transition: transform 0.1s, box-shadow 0.2s;
+}
+.btn-trade-sell:hover { background: #dc2626; box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3); }
+
+
+@keyframes flash-green {
+  0% { color: #34d399; }
+  100% { color: inherit; }
+}
+
+@keyframes flash-red {
+  0% { color: #f87171; }
+  100% { color: inherit; }
+}
+
+.fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Custom Scrollbar for sidebars */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+

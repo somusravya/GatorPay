@@ -1,0 +1,91 @@
+<div class="loans-container p-6">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-3xl font-bold">Personal Loans</h2>
+    <div class="tabs tabs-boxed bg-gray-900 border border-gray-800">
+      <a class="tab" [class.tab-active]="activeTab === 'active'" (click)="activeTab = 'active'">Active Loans</a>
+      <a class="tab" [class.tab-active]="activeTab === 'offers'" (click)="activeTab = 'offers'">New Offers</a>
+    </div>
+  </div>
+
+  <!-- ACTIVE LOANS TAB -->
+  <div *ngIf="activeTab === 'active'" class="grid gap-6 auto-rows-max fade-in">
+    <div *ngIf="!loans.length" class="text-center py-12 text-gray-500">
+      You have no active loans. Check the Offers tab to apply.
+    </div>
+
+    <div *ngFor="let loan of loans" class="card glass text-white">
+      <div class="card-body flex-row items-center justify-between">
+         <div>
+           <h3 class="card-title text-xl mb-1">${{loan.amount | number:'1.2-2'}} Loan</h3>
+           <span class="badge badge-lg" [ngClass]="{'badge-success': loan.status === 'active', 'badge-ghost': loan.status === 'paid'}">{{loan.status | uppercase}}</span>
+         </div>
+         
+         <div class="text-right">
+           <div class="text-3xl font-bold text-primary">{{loan.emi | currency}} <span class="text-sm font-normal text-gray-400">/mo</span></div>
+           <div class="text-sm text-gray-400 mt-1">Remaining: {{loan.remaining_amount | currency}} of {{loan.total_payable | currency}}</div>
+         </div>
+      </div>
+      <div class="card-actions bg-gray-900/50 p-4 justify-between items-center border-t border-gray-800">
+         <div class="text-sm text-gray-400">
+           <i class="fas fa-calendar-alt mr-2"></i> Next Payment: <span class="text-white">{{loan.next_payment_date | date}}</span>
+         </div>
+         <button *ngIf="loan.status === 'active'" class="btn btn-primary btn-sm" (click)="payEMI(loan.id)">Pay EMI Now</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- OFFERS TAB -->
+  <div *ngIf="activeTab === 'offers'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 fade-in">
+    <div *ngFor="let offer of offers" class="card glass shadow-lg hover:shadow-primary/20 transition-all text-white">
+      <div class="card-body">
+        <h2 class="card-title text-2xl text-primary">{{offer.name}}</h2>
+        <p class="text-gray-400 mb-4">{{offer.description}}</p>
+        
+        <div class="grid grid-cols-2 gap-4 mb-6">
+          <div><span class="text-xs text-gray-500">Max Amount</span><br><span class="font-bold">{{offer.max_amount | currency}}</span></div>
+          <div><span class="text-xs text-gray-500">Interest Rate</span><br><span class="font-bold">{{offer.interest_rate}}% APR</span></div>
+          <div><span class="text-xs text-gray-500">Max Term</span><br><span class="font-bold">{{offer.term_months}} Mos</span></div>
+        </div>
+
+        <button class="btn btn-primary w-full" (click)="openApplyModal(offer)">Check Eligibility</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- APPLY MODAL -->
+  <div *ngIf="showApplyModal" class="modal-backdrop">
+    <div class="card glass w-full max-w-lg text-white">
+      <h2 class="text-2xl font-bold mb-2">Apply for {{selectedOffer?.name}}</h2>
+      <p class="text-sm text-gray-400 mb-6">{{selectedOffer?.interest_rate}}% APR fixed</p>
+      
+      <form [formGroup]="applyForm" (ngSubmit)="submitApplication()">
+        <div class="grid gap-6">
+          <div>
+            <label class="block text-sm text-gray-400 mb-1">Loan Amount ($)</label>
+            <input type="number" formControlName="amount" class="input input-bordered w-full bg-gray-900 border-gray-700">
+            <span class="text-xs text-info mt-1 block">Min: {{selectedOffer?.min_amount}}, Max: {{selectedOffer?.max_amount}}</span>
+          </div>
+
+          <div>
+             <label class="block text-sm text-gray-400 mb-1">Term Duration (Months)</label>
+             <input type="range" min="1" [max]="selectedOffer?.term_months" formControlName="term_months" class="range range-primary" step="1" />
+             <div class="text-center mt-2 font-bold">{{applyForm.value.term_months}} Months</div>
+          </div>
+
+          <div class="p-6 bg-gray-900 rounded-xl border border-primary/30 mt-2">
+            <div class="flex justify-between items-center">
+              <span class="text-gray-400">Estimated Monthly EMI</span>
+              <span class="text-3xl font-bold text-primary">{{calculatedEMI | currency}}</span>
+            </div>
+          </div>
+
+          <div class="flex gap-4 mt-4">
+            <button type="submit" class="btn btn-primary flex-1" [disabled]="applyForm.invalid">Accept & Disburse</button>
+            <button type="button" class="btn btn-ghost" (click)="showApplyModal = false">Cancel</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
