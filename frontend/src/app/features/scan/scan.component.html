@@ -1,0 +1,65 @@
+<div class="scan-container p-6">
+  <div class="tabs tabs-boxed mb-6 justify-center bg-gray-900 border border-gray-800">
+    <a class="tab tab-lg" [class.tab-active]="activeTab === 'pay'" (click)="activeTab = 'pay'">Scan & Pay</a>
+    <a class="tab tab-lg" [class.tab-active]="activeTab === 'receive'" (click)="activeTab = 'receive'">Receive (Merchant)</a>
+  </div>
+
+  <div class="max-w-md mx-auto w-full">
+    <!-- PAY TAB -->
+    <div *ngIf="activeTab === 'pay'" class="card glass shadow-xl p-8 fade-in">
+      <h2 class="text-2xl font-bold mb-4 text-center">Make a Payment</h2>
+      
+      <div class="w-full aspect-square bg-gray-900 border-2 border-dashed border-gray-700 rounded-xl flex items-center justify-center mb-6 relative hover:border-primary transition-colors cursor-pointer group">
+         <span class="text-gray-500 group-hover:text-primary"><i class="fas fa-camera text-4xl"></i><br>Click to Scan</span>
+      </div>
+
+      <div class="form-control">
+        <label class="label"><span class="label-text text-gray-400">Or enter QR Code manually</span></label>
+        <input type="text" [(ngModel)]="scanCode" class="input input-bordered w-full mb-4 bg-gray-800 text-white" placeholder="GATORPAY-XXXX-XXXX">
+      </div>
+
+      <div class="form-control">
+        <label class="label"><span class="label-text text-gray-400">Override Amount (optional)</span></label>
+        <input type="number" [(ngModel)]="payAmount" class="input input-bordered w-full mb-6 bg-gray-800 text-white">
+      </div>
+
+      <button class="btn btn-primary w-full" (click)="payQR()" [disabled]="!scanCode">Pay Now</button>
+      <p class="text-xs text-center text-green-400 mt-4">Earn 1.5% cashback on all QR payments!</p>
+    </div>
+
+    <!-- RECEIVE TAB -->
+    <div *ngIf="activeTab === 'receive'" class="card glass shadow-xl p-8 fade-in text-center">
+      
+      <!-- Not registered -->
+      <div *ngIf="!isMerchant" class="flex flex-col gap-4">
+        <h2 class="text-2xl font-bold mb-2">Merchant Setup</h2>
+        <p class="text-sm text-gray-400 mb-4">Register as a merchant to generate QR codes and receive payments.</p>
+        <input type="text" [(ngModel)]="businessName" placeholder="Business Name" class="input input-bordered w-full bg-gray-800 text-white">
+        <input type="text" [(ngModel)]="category" placeholder="Category (e.g. Retail)" class="input input-bordered w-full bg-gray-800 text-white">
+        <button class="btn btn-primary" (click)="registerMerchant()">Become a Merchant</button>
+      </div>
+
+      <!-- Registered -->
+      <div *ngIf="isMerchant">
+        <h2 class="text-2xl font-bold mb-4">Your QR Code</h2>
+        <p class="text-sm text-gray-400 mb-6">Display this code to customers for instant payments. 1.5% merchant fee applies.</p>
+        
+        <div class="p-4 bg-white rounded-xl inline-block mb-6 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+           <img *ngIf="qrCodeImage" [src]="qrCodeImage" alt="Merchant QR Code" class="w-48 h-48">
+           <div *ngIf="!qrCodeImage" class="w-48 h-48 bg-gray-200 animate-pulse flex justify-center items-center">Generating...</div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mb-6 text-left">
+           <div>
+             <label class="text-xs text-gray-400 block mb-1">Set Amount ($)</label>
+             <input type="number" [(ngModel)]="qrAmount" (change)="generateQR()" class="input input-sm input-bordered w-full bg-gray-800 text-white">
+           </div>
+           <div class="flex items-end pb-1 gap-2">
+             <input type="checkbox" [(ngModel)]="isDynamic" (change)="generateQR()" class="toggle toggle-sm toggle-primary">
+             <span class="text-sm">Dynamic/Strict</span>
+           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
