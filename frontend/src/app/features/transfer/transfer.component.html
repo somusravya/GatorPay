@@ -1,0 +1,127 @@
+<div class="transfer-page">
+    <div class="page-header">
+        <h1>💸 Send Money</h1>
+        <p class="subtitle">Transfer money to friends & family instantly</p>
+    </div>
+
+    <!-- Success Modal -->
+    @if (showSuccess()) {
+    <div class="modal-overlay" (click)="closeSuccess()">
+        <div class="success-modal" (click)="$event.stopPropagation()">
+            <div class="success-icon">✅</div>
+            <h2>Transfer Successful!</h2>
+            <p>{{ successMessage() }}</p>
+            <p class="cashback-note">🎉 You earned 1% cashback on this transfer!</p>
+            <button class="btn-primary" (click)="closeSuccess()">Done</button>
+        </div>
+    </div>
+    }
+
+    <!-- Error Message -->
+    @if (errorMessage()) {
+    <div class="error-banner">
+        <span>❌ {{ errorMessage() }}</span>
+        <button (click)="errorMessage.set('')">✕</button>
+    </div>
+    }
+
+    <div class="transfer-container">
+        <!-- Search / Select Recipient -->
+        <div class="section">
+            <h3 class="section-title">Recipient</h3>
+
+            @if (selectedUser()) {
+            <div class="selected-user-card">
+                <div class="user-avatar-large">
+                    @if (selectedUser()?.avatar_url) {
+                    <img [src]="selectedUser()?.avatar_url" alt="Avatar" />
+                    } @else {
+                    <span>{{ getUserInitials(selectedUser()!) }}</span>
+                    }
+                </div>
+                <div class="user-info">
+                    <span class="user-name">{{ selectedUser()?.first_name }} {{ selectedUser()?.last_name }}</span>
+                    <span class="user-username">&#64;{{ selectedUser()?.username }}</span>
+                </div>
+                <button class="clear-btn" (click)="clearSelection()">✕</button>
+            </div>
+            } @else {
+            <!-- Search Input -->
+            <div class="search-wrapper">
+                <input type="text" class="search-input" placeholder="Search by username, email, or name..."
+                    [(ngModel)]="searchQuery" (input)="onSearchInput()" autocomplete="off" />
+                @if (searchLoading()) {
+                <span class="search-spinner">⏳</span>
+                }
+            </div>
+
+            <!-- Search Results -->
+            @if (searchResults().length > 0) {
+            <div class="search-results">
+                @for (user of searchResults(); track user.id) {
+                <div class="search-result-item" (click)="selectUser(user)">
+                    <div class="user-avatar-small">
+                        @if (user.avatar_url) {
+                        <img [src]="user.avatar_url" alt="Avatar" />
+                        } @else {
+                        <span>{{ getUserInitials(user) }}</span>
+                        }
+                    </div>
+                    <div class="result-info">
+                        <span class="result-name">{{ user.first_name }} {{ user.last_name }}</span>
+                        <span class="result-username">&#64;{{ user.username }}</span>
+                    </div>
+                </div>
+                }
+            </div>
+            }
+
+            <!-- Recent Contacts -->
+            @if (recentContacts().length > 0 && searchQuery === '') {
+            <div class="recent-contacts">
+                <h4>Recent Contacts</h4>
+                <div class="contacts-grid">
+                    @for (contact of recentContacts(); track contact.id) {
+                    <div class="contact-card" (click)="selectUser(contact)">
+                        <div class="user-avatar-small">
+                            @if (contact.avatar_url) {
+                            <img [src]="contact.avatar_url" alt="Avatar" />
+                            } @else {
+                            <span>{{ getUserInitials(contact) }}</span>
+                            }
+                        </div>
+                        <span class="contact-name">{{ contact.first_name }}</span>
+                    </div>
+                    }
+                </div>
+            </div>
+            }
+            }
+        </div>
+
+        <!-- Amount & Note -->
+        @if (selectedUser()) {
+        <div class="section">
+            <h3 class="section-title">Amount</h3>
+            <div class="amount-input-wrapper">
+                <span class="currency-sign">$</span>
+                <input type="number" class="amount-input" placeholder="0.00" [(ngModel)]="amount" min="0.01"
+                    step="0.01" />
+            </div>
+        </div>
+
+        <div class="section">
+            <h3 class="section-title">Note (optional)</h3>
+            <input type="text" class="note-input" placeholder="What's this for?" [(ngModel)]="note" maxlength="100" />
+        </div>
+
+        <button class="send-btn" (click)="sendMoney()" [disabled]="loading() || amount <= 0">
+            @if (loading()) {
+            <span>Sending...</span>
+            } @else {
+            <span>Send ${{ amount > 0 ? amount.toFixed(2) : '0.00' }}</span>
+            }
+        </button>
+        }
+    </div>
+</div>

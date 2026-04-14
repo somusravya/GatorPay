@@ -23,8 +23,10 @@ export class DashboardComponent implements OnInit {
 
     quickActions = [
         { label: 'Add Money', icon: '💳', route: '/wallet', color: '#3b82f6' },
-        { label: 'Withdraw', icon: '🏦', route: '/wallet', fragment: 'withdraw', color: '#8b5cf6' },
-        { label: 'Transactions', icon: '📜', route: '/transactions', color: '#06b6d4' }
+        { label: 'Transfer', icon: '💸', route: '/transfer', color: '#8b5cf6' },
+        { label: 'Pay Bills', icon: '📄', route: '/bills', color: '#06b6d4' },
+        { label: 'Rewards', icon: '🎁', route: '/rewards', color: '#22c55e' },
+        { label: 'Transactions', icon: '📜', route: '/transactions', color: '#f59e0b' }
     ];
 
     ngOnInit(): void {

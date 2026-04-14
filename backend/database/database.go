@@ -35,7 +35,14 @@ func Migrate() {
 		&models.Transaction{},
 		&models.Biller{},
 		&models.LoanOffer{},
+		&models.Loan{},
+		&models.VirtualCard{},
+		&models.Merchant{},
+		&models.MerchantQRCode{},
 		&models.OTPCode{},
+		&models.Reward{},
+		&models.SavedBiller{},
+		&models.BillPayment{},
 	)
 	if err != nil {
 		log.Fatal("Failed to migrate database:", err)
