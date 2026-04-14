@@ -8,19 +8,21 @@ import (
 	"gorm.io/gorm"
 )
 
-// Loan is an active user loan instance tied to a LoanOffer.
+// Loan represents an issued loan
 type Loan struct {
-	ID                   string          `gorm:"type:varchar(36);primaryKey" json:"id"`
-	UserID               string          `gorm:"type:varchar(36);index;not null" json:"user_id"`
-	OfferID              string          `gorm:"type:varchar(36);not null" json:"offer_id"`
-	Principal            decimal.Decimal `gorm:"type:decimal(20,2);not null" json:"principal"`
-	TermMonths           int             `json:"term_months"`
-	InterestRate         decimal.Decimal `gorm:"type:decimal(5,2)" json:"interest_rate"`
-	OutstandingBalance   decimal.Decimal `gorm:"type:decimal(20,2);not null" json:"outstanding_balance"`
-	MonthlyPayment       decimal.Decimal `gorm:"type:decimal(20,2);not null" json:"monthly_payment"`
-	Status               string          `gorm:"default:active" json:"status"`
-	CreatedAt            time.Time       `json:"created_at"`
-	UpdatedAt            time.Time       `json:"updated_at"`
+	ID              string          `gorm:"type:varchar(36);primaryKey" json:"id"`
+	UserID          string          `gorm:"type:varchar(36);index" json:"user_id"`
+	Amount          decimal.Decimal `gorm:"type:decimal(20,2)" json:"amount"`
+	TermMonths      int             `json:"term_months"`
+	InterestRate    decimal.Decimal `gorm:"type:decimal(5,2)" json:"interest_rate"`
+	EMI             decimal.Decimal `gorm:"type:decimal(20,2)" json:"emi"`
+	TotalPayable    decimal.Decimal `gorm:"type:decimal(20,2)" json:"total_payable"`
+	AmountPaid      decimal.Decimal `gorm:"type:decimal(20,2);default:0" json:"amount_paid"`
+	RemainingAmount decimal.Decimal `gorm:"type:decimal(20,2)" json:"remaining_amount"`
+	Status          string          `json:"status" gorm:"default:'active'"` // active, paid
+	NextPaymentDate time.Time       `json:"next_payment_date"`
+	CreatedAt       time.Time       `json:"created_at"`
+	UpdatedAt       time.Time       `json:"updated_at"`
 }
 
 func (l *Loan) BeforeCreate(tx *gorm.DB) error {
