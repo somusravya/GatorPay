@@ -1,0 +1,128 @@
+<div class="budget-page">
+    <div class="page-header">
+        <div>
+            <h1>💰 Budget Planner</h1>
+            <p class="subtitle">Set goals, automate savings, and plan your future</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn-secondary" (click)="executeRoundup()">🔄 Execute Roundup</button>
+            <button class="btn-primary" (click)="showGoalForm.set(!showGoalForm())">
+                {{ showGoalForm() ? '✕ Cancel' : '+ New Goal' }}
+            </button>
+        </div>
+    </div>
+
+    <!-- New Goal Form -->
+    @if (showGoalForm()) {
+    <div class="goal-form-card">
+        <h3>Create Savings Goal</h3>
+        <form [formGroup]="goalForm" (ngSubmit)="createGoal()">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Goal Name</label>
+                    <input formControlName="name" placeholder="e.g., Summer Vacation">
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select formControlName="category">
+                        @for (cat of categories; track cat.value) {
+                        <option [value]="cat.value">{{ cat.icon }} {{ cat.label }}</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Target Amount ($)</label>
+                    <input type="number" formControlName="target_amount" min="1">
+                </div>
+                <div class="form-group">
+                    <label>Deadline (Optional)</label>
+                    <input type="date" formControlName="deadline">
+                </div>
+            </div>
+            <button type="submit" class="btn-primary" [disabled]="goalForm.invalid">Create Goal</button>
+        </form>
+    </div>
+    }
+
+    <!-- Goals Grid -->
+    <div class="section">
+        <h2>🎯 Your Goals</h2>
+        @if (loading()) {
+        <div class="goals-grid">
+            @for (i of [1,2,3]; track i) { <div class="skeleton-card"></div> }
+        </div>
+        } @else if (goals().length) {
+        <div class="goals-grid">
+            @for (goal of goals(); track goal.id) {
+            <div class="goal-card">
+                <div class="goal-header">
+                    <span class="goal-icon">{{ getCategoryIcon(goal.category) }}</span>
+                    <div class="goal-info">
+                        <h4>{{ goal.name }}</h4>
+                        <span class="goal-category">{{ goal.category }}</span>
+                    </div>
+                    <span class="goal-status" [class]="'status-' + goal.status">{{ goal.status }}</span>
+                </div>
+                <div class="goal-amounts">
+                    <span class="current">${{ goal.current_amount }}</span>
+                    <span class="separator">of</span>
+                    <span class="target">${{ goal.target_amount }}</span>
+                </div>
+                <div class="progress-ring-container">
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" [style.width.%]="getProgress(goal)"></div>
+                    </div>
+                    <span class="progress-pct">{{ getProgress(goal) | number:'1.0-0' }}%</span>
+                </div>
+                @if (goal.deadline) {
+                <span class="goal-deadline">📅 Due: {{ goal.deadline | date:'mediumDate' }}</span>
+                }
+            </div>
+            }
+        </div>
+        } @else {
+        <div class="empty-state">
+            <span class="empty-icon">🎯</span>
+            <h3>No goals yet</h3>
+            <p>Create your first savings goal to get started!</p>
+        </div>
+        }
+    </div>
+
+    <!-- What-If Calculator -->
+    <div class="section">
+        <h2>🧮 What-If Calculator</h2>
+        <div class="calculator-card">
+            <div class="calc-inputs">
+                <div class="calc-group">
+                    <label>Monthly Income</label>
+                    <input type="number" [(ngModel)]="monthlyIncome" min="0">
+                </div>
+                <div class="calc-group">
+                    <label>Savings Rate: {{ savingsPercent }}%</label>
+                    <input type="range" [(ngModel)]="savingsPercent" min="0" max="80" step="5">
+                </div>
+                <div class="calc-group">
+                    <label>Emergency Fund (Months)</label>
+                    <input type="number" [(ngModel)]="emergencyMonths" min="1" max="24">
+                </div>
+            </div>
+            <div class="calc-results">
+                <div class="calc-result">
+                    <span class="calc-label">Monthly Savings</span>
+                    <span class="calc-value">${{ monthlySavings | number:'1.2-2' }}</span>
+                </div>
+                <div class="calc-result">
+                    <span class="calc-label">Emergency Fund Target</span>
+                    <span class="calc-value">${{ emergencyTarget | number:'1.2-2' }}</span>
+                </div>
+                <div class="calc-result highlight">
+                    <span class="calc-label">Months to Build</span>
+                    <span class="calc-value">{{ monthsToEmergency }} months</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

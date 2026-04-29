@@ -1,0 +1,158 @@
+<div class="insights-page">
+    <div class="page-header">
+        <h1>🧠 Financial Insights</h1>
+        <p class="subtitle">AI-powered analysis of your financial health</p>
+    </div>
+
+    @if (loading()) {
+    <div class="loading-skeleton">
+        @for (i of [1,2,3,4]; track i) {
+        <div class="skeleton-card"></div>
+        }
+    </div>
+    } @else if (insights()) {
+
+    <!-- Health Score & Overview -->
+    <div class="overview-grid">
+        <div class="health-score-card">
+            <h3>Financial Health Score</h3>
+            <div class="score-ring">
+                <svg viewBox="0 0 200 200">
+                    <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="12"/>
+                    <circle cx="100" cy="100" r="80" fill="none"
+                        [attr.stroke]="getGradeColor(insights().health_grade)"
+                        stroke-width="12"
+                        stroke-linecap="round"
+                        [attr.stroke-dasharray]="getScoreArc(insights().health_score)"
+                        transform="rotate(-90 100 100)"
+                        class="score-arc"/>
+                </svg>
+                <div class="score-value">
+                    <span class="score-number">{{ insights().health_score }}</span>
+                    <span class="score-label" [style.color]="getGradeColor(insights().health_grade)">{{ insights().health_grade }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="summary-cards">
+            <div class="summary-card income">
+                <span class="summary-icon">💰</span>
+                <div class="summary-info">
+                    <span class="summary-label">Total Income</span>
+                    <span class="summary-value">${{ insights().total_income | number:'1.2-2' }}</span>
+                </div>
+            </div>
+            <div class="summary-card spending">
+                <span class="summary-icon">💸</span>
+                <div class="summary-info">
+                    <span class="summary-label">Total Spending</span>
+                    <span class="summary-value">${{ insights().total_spending | number:'1.2-2' }}</span>
+                </div>
+            </div>
+            <div class="summary-card savings">
+                <span class="summary-icon">📈</span>
+                <div class="summary-info">
+                    <span class="summary-label">Savings Rate</span>
+                    <span class="summary-value" [class.positive]="insights().savings_rate > 0" [class.negative]="insights().savings_rate < 0">{{ insights().savings_rate | number:'1.1-1' }}%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Spending Breakdown -->
+    <div class="section">
+        <h2>📊 Spending Breakdown</h2>
+        <div class="category-grid">
+            @for (cat of insights().categories; track cat.category) {
+            <div class="category-card">
+                <div class="category-header">
+                    <span class="category-icon">{{ cat.icon }}</span>
+                    <span class="category-name">{{ cat.category }}</span>
+                    <span class="category-trend" [class]="'trend-' + cat.trend">
+                        {{ cat.trend === 'up' ? '↗' : cat.trend === 'down' ? '↘' : '→' }}
+                    </span>
+                </div>
+                <div class="category-amount">${{ cat.amount | number:'1.2-2' }}</div>
+                <div class="category-bar-container">
+                    <div class="category-bar" [style.width.%]="cat.percentage"></div>
+                </div>
+                <span class="category-pct">{{ cat.percentage | number:'1.0-0' }}% of spending</span>
+            </div>
+            }
+        </div>
+    </div>
+
+    <!-- Anomalies -->
+    @if (insights().anomalies?.length) {
+    <div class="section">
+        <h2>⚠️ Spending Anomalies</h2>
+        <div class="anomaly-list">
+            @for (anomaly of insights().anomalies; track anomaly.category) {
+            <div class="anomaly-card" [class]="'severity-' + anomaly.severity">
+                <div class="anomaly-header">
+                    <span class="anomaly-badge">{{ anomaly.severity | uppercase }}</span>
+                    <span class="anomaly-category">{{ anomaly.category }}</span>
+                </div>
+                <p class="anomaly-desc">{{ anomaly.description }}</p>
+                <div class="anomaly-stats">
+                    <span>Spent: <strong>${{ anomaly.amount | number:'1.2-2' }}</strong></span>
+                    <span>Average: <strong>${{ anomaly.average | number:'1.2-2' }}</strong></span>
+                    <span class="deviation">+{{ anomaly.deviation | number:'1.1-1' }}%</span>
+                </div>
+            </div>
+            }
+        </div>
+    </div>
+    }
+
+    <!-- Forecasts -->
+    <div class="section">
+        <h2>📉 Monthly Forecasts</h2>
+        <div class="forecast-chart">
+            @for (forecast of insights().forecasts; track forecast.month) {
+            <div class="forecast-bar-group">
+                <div class="bar-container">
+                    <div class="bar predicted" [style.height.%]="(forecast.predicted / 1200) * 100" title="Predicted: ${{forecast.predicted}}"></div>
+                    <div class="bar actual" [style.height.%]="(forecast.actual / 1200) * 100" title="Actual: ${{forecast.actual}}"></div>
+                </div>
+                <span class="bar-label">{{ forecast.month }}</span>
+            </div>
+            }
+        </div>
+        <div class="forecast-legend">
+            <span class="legend-item"><span class="legend-dot predicted"></span> Predicted</span>
+            <span class="legend-item"><span class="legend-dot actual"></span> Actual</span>
+        </div>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="section">
+        <h2>💡 Smart Recommendations</h2>
+        <div class="recommendation-grid">
+            @for (rec of insights().recommendations; track rec.title) {
+            <div class="recommendation-card" [class]="'priority-' + rec.priority">
+                <div class="rec-icon">{{ rec.icon }}</div>
+                <div class="rec-content">
+                    <h4>{{ rec.title }}</h4>
+                    <p>{{ rec.description }}</p>
+                    <div class="rec-meta">
+                        <span class="rec-impact">{{ rec.impact }}</span>
+                        @if (rec.potential_savings > 0) {
+                        <span class="rec-savings">Save ~${{ rec.potential_savings }}/mo</span>
+                        }
+                    </div>
+                </div>
+                <span class="priority-badge">{{ rec.priority }}</span>
+            </div>
+            }
+        </div>
+    </div>
+
+    } @else {
+    <div class="empty-state">
+        <span class="empty-icon">📊</span>
+        <h3>No insights available yet</h3>
+        <p>Make some transactions to generate your financial insights.</p>
+    </div>
+    }
+</div>

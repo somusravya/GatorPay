@@ -1,0 +1,78 @@
+<div class="admin-page">
+    <div class="page-header">
+        <h1>⚙️ Admin Console</h1>
+        <span class="admin-badge">INTERNAL</span>
+    </div>
+
+    <div class="tab-bar">
+        @for (tab of tabs; track tab.id) {
+        <button class="tab-btn" [class.active]="activeTab === tab.id" (click)="setTab(tab.id)">
+            <span>{{ tab.icon }}</span> {{ tab.label }}
+        </button>
+        }
+    </div>
+
+    @if (activeTab === 'overview') {
+    <div class="metrics-grid">
+        @if (metrics()) {
+        <div class="metric-card accent"><span class="metric-icon">👥</span><div><span class="metric-label">Total Users</span><span class="metric-value">{{ metrics().total_users }}</span></div></div>
+        <div class="metric-card"><span class="metric-icon">💳</span><div><span class="metric-label">Total Transactions</span><span class="metric-value">{{ metrics().total_transactions }}</span></div></div>
+        <div class="metric-card"><span class="metric-icon">🏦</span><div><span class="metric-label">Active Loans</span><span class="metric-value">{{ metrics().total_loans }}</span></div></div>
+        <div class="metric-card"><span class="metric-icon">💰</span><div><span class="metric-label">Platform GMV</span><span class="metric-value">${{ metrics().platform_gmv | number:'1.0-0' }}</span></div></div>
+        <div class="metric-card"><span class="metric-icon">📈</span><div><span class="metric-label">Revenue Est.</span><span class="metric-value">${{ metrics().revenue_estimate | number:'1.0-0' }}</span></div></div>
+        <div class="metric-card alert"><span class="metric-icon">🛡️</span><div><span class="metric-label">Fraud Alerts</span><span class="metric-value">{{ metrics().pending_fraud_alerts }}</span></div></div>
+        <div class="metric-card"><span class="metric-icon">📊</span><div><span class="metric-label">MAU</span><span class="metric-value">{{ metrics().active_users_month }}</span></div></div>
+        <div class="metric-card"><span class="metric-icon">🆕</span><div><span class="metric-label">New This Week</span><span class="metric-value">{{ metrics().new_users_this_week }}</span></div></div>
+        }
+    </div>
+    }
+
+    @if (activeTab === 'users') {
+    <div class="users-section">
+        <div class="search-bar">
+            <input [(ngModel)]="searchQuery" placeholder="Search users..." (keyup.enter)="searchUsers()">
+            <button class="btn-primary" (click)="searchUsers()">🔍 Search</button>
+        </div>
+        <div class="users-table">
+            <div class="table-header"><span>Name</span><span>Email</span><span>KYC</span><span>Credit Score</span><span>Joined</span></div>
+            @for (user of users(); track user.id) {
+            <div class="table-row">
+                <span class="user-name">{{ user.first_name }} {{ user.last_name }}</span>
+                <span class="user-email">{{ user.email }}</span>
+                <span class="kyc-status" [class]="'kyc-' + user.kyc_status">{{ user.kyc_status | uppercase }}</span>
+                <span>{{ user.credit_score }}</span>
+                <span class="user-date">{{ user.created_at | date:'shortDate' }}</span>
+            </div>
+            }
+        </div>
+        <div class="pagination-info">Showing {{ users().length }} of {{ userTotal() }} users</div>
+    </div>
+    }
+
+    @if (activeTab === 'fraud') {
+    <div class="fraud-section">
+        @if (fraudAlerts().length) {
+        <div class="fraud-list">
+            @for (alert of fraudAlerts(); track alert.id) {
+            <div class="fraud-card">
+                <div class="fraud-header">
+                    <span class="risk-score" [class]="alert.risk_score >= 70 ? 'high' : alert.risk_score >= 40 ? 'medium' : 'low'">
+                        Risk: {{ alert.risk_score | number:'1.0-0' }}
+                    </span>
+                    <span class="fraud-type">{{ alert.type }}</span>
+                    <span class="fraud-status">{{ alert.status | uppercase }}</span>
+                </div>
+                <p class="fraud-desc">{{ alert.description }}</p>
+                <div class="fraud-meta">
+                    <span>User: {{ alert.user?.first_name }} {{ alert.user?.last_name }}</span>
+                    <span>{{ alert.created_at | date:'short' }}</span>
+                </div>
+            </div>
+            }
+        </div>
+        } @else {
+        <div class="empty-state"><span class="empty-icon">✅</span><h3>No pending alerts</h3><p>All fraud alerts have been reviewed.</p></div>
+        }
+    </div>
+    }
+</div>
