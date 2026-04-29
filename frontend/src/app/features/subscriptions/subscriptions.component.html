@@ -1,0 +1,122 @@
+<div class="subscriptions-page">
+    <div class="page-header">
+        <div>
+            <h1>🔄 Subscription Hub</h1>
+            <p class="subtitle">Track and manage your recurring charges</p>
+        </div>
+        <button class="btn-primary" (click)="showTrackForm = !showTrackForm">
+            {{ showTrackForm ? '✕ Cancel' : '+ Track Subscription' }}
+        </button>
+    </div>
+
+    <div class="stats-row">
+        <div class="stat-card"><span class="stat-icon">💳</span><div><span class="stat-label">Monthly Total</span><span class="stat-value">${{ totalMonthly | number:'1.2-2' }}</span></div></div>
+        <div class="stat-card"><span class="stat-icon">📊</span><div><span class="stat-label">Active</span><span class="stat-value">{{ activeCount }}</span></div></div>
+        <div class="stat-card"><span class="stat-icon">📅</span><div><span class="stat-label">Yearly Estimate</span><span class="stat-value">${{ totalMonthly * 12 | number:'1.2-2' }}</span></div></div>
+    </div>
+
+    <!-- Track Subscription Form -->
+    @if (showTrackForm) {
+    <div class="track-form-card">
+        <h3>Track New Subscription</h3>
+        <form [formGroup]="trackForm" (ngSubmit)="trackSubscription()">
+            <div class="form-row">
+                <div class="form-group"><label>Service Name</label><input formControlName="name" placeholder="e.g., Netflix"></div>
+                <div class="form-group"><label>Category</label>
+                    <select formControlName="category">
+                        @for (cat of categories; track cat) {
+                        <option [value]="cat">{{ cat | titlecase }}</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label>Amount ($)</label><input formControlName="amount" type="number" min="0.01" step="0.01"></div>
+                <div class="form-group"><label>Frequency</label>
+                    <select formControlName="frequency">
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="yearly">Yearly</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label>Provider</label><input formControlName="provider" placeholder="e.g., Netflix Inc."></div>
+                <div class="form-group"><label>Icon</label><input formControlName="icon" placeholder="🎬"></div>
+            </div>
+            <button type="submit" class="btn-primary" [disabled]="trackForm.invalid">Track Subscription</button>
+        </form>
+    </div>
+    }
+
+    <!-- Subscription Cards -->
+    @if (loading()) {
+    <div class="sub-grid">@for (i of [1,2,3,4]; track i) { <div class="skeleton-card"></div> }</div>
+    } @else {
+    <div class="sub-grid">
+        @for (sub of subscriptions(); track sub.id) {
+        <div class="sub-card" [style.border-left-color]="sub.color || '#8b5cf6'">
+            <div class="sub-header">
+                <span class="sub-icon">{{ sub.icon || '🔄' }}</span>
+                <div class="sub-info">
+                    <h4>{{ sub.name }}</h4>
+                    <span class="sub-provider">{{ sub.provider || sub.category }}</span>
+                </div>
+                <span class="sub-amount">${{ sub.amount }}</span>
+            </div>
+            <div class="sub-details">
+                <span class="sub-freq">{{ sub.frequency }}</span>
+                @if (sub.next_renewal) {
+                <span class="sub-renewal">
+                    Next: {{ sub.next_renewal | date:'mediumDate' }}
+                    <span class="days-badge">{{ getDaysUntilRenewal(sub.next_renewal) }}d</span>
+                </span>
+                }
+            </div>
+            <div class="sub-actions">
+                <button class="toggle-btn" [class.active]="sub.auto_pay" (click)="toggleAutoPay(sub)">
+                    {{ sub.auto_pay ? '✅ Auto-Pay ON' : '⬜ Auto-Pay OFF' }}
+                </button>
+                <span class="sub-status" [class]="'status-' + sub.status">{{ sub.status }}</span>
+            </div>
+        </div>
+        }
+    </div>
+    }
+
+    <!-- Upcoming Renewals Calendar -->
+    @if (upcomingRenewals.length) {
+    <div class="section">
+        <h2>📅 Upcoming Renewals (Next 14 Days)</h2>
+        <div class="renewals-timeline">
+            @for (sub of upcomingRenewals; track sub.id) {
+            <div class="renewal-item">
+                <span class="renewal-icon">{{ sub.icon || '🔄' }}</span>
+                <div class="renewal-info">
+                    <span class="renewal-name">{{ sub.name }}</span>
+                    <span class="renewal-date">{{ sub.next_renewal | date:'mediumDate' }} · {{ getDaysUntilRenewal(sub.next_renewal) }} days</span>
+                </div>
+                <span class="renewal-amount">${{ sub.amount }}</span>
+            </div>
+            }
+        </div>
+    </div>
+    }
+
+    <!-- Optimization Suggestions -->
+    <div class="section">
+        <h2>💡 Optimization Suggestions</h2>
+        <div class="suggestions-list">
+            @for (tip of optimizationSuggestions; track tip.title) {
+            <div class="suggestion-card">
+                <span class="suggestion-icon">{{ tip.icon }}</span>
+                <div class="suggestion-content">
+                    <h4>{{ tip.title }}</h4>
+                    <p>{{ tip.desc }}</p>
+                </div>
+                <span class="suggestion-savings">Save ~${{ tip.savings | number:'1.2-2' }}/mo</span>
+            </div>
+            }
+        </div>
+    </div>
+</div>
