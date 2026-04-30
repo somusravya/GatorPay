@@ -184,4 +184,14 @@ export class SmartToolsComponent {
         if (score >= 35) return 'Review carefully';
         return 'Looks normal';
     }
+
+    getSmartActions(): string[] {
+        const savingsMove = Math.min(this.getRemainingAfterSpending(), this.savingsTarget);
+        return [
+            `Move $${savingsMove.toFixed(0)} toward savings this month.`,
+            `Keep ${this.selectedCategory} below ${this.categoryLimit.toFixed(0)} for this cycle.`,
+            `Review $${this.getMonthlySubscriptionTotal().toFixed(0)} in monthly subscriptions before the next renewal.`,
+            `Emergency fund gap is $${this.getEmergencyGap().toFixed(0)} toward a 3-month cushion.`
+        ];
+    }
 }

@@ -326,5 +326,19 @@
             </div>
         </div>
     </section>
+
+    <section class="tool-card accent-slate">
+        <div class="tool-header">
+            <span class="tool-kicker">Feature 10</span>
+            <h2>Smart Action Plan</h2>
+            <p>Convert the numbers on this page into next-step recommendations.</p>
+        </div>
+
+        <ul class="action-plan">
+            @for (action of getSmartActions(); track action) {
+            <li>{{ action }}</li>
+            }
+        </ul>
+    </section>
     </div>
 </div>
