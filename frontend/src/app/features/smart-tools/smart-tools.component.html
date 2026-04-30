@@ -136,5 +136,39 @@
             </div>
         </div>
     </section>
+
+    <section class="tool-card accent-purple">
+        <div class="tool-header">
+            <span class="tool-kicker">Feature 4</span>
+            <h2>Split Bill Calculator</h2>
+            <p>Split shared payments with tip included.</p>
+        </div>
+
+        <div class="input-grid">
+            <label>
+                Bill Total
+                <input type="number" [(ngModel)]="billTotal" min="0">
+            </label>
+            <label>
+                People
+                <input type="number" [(ngModel)]="splitPeople" min="1">
+            </label>
+            <label>
+                Tip %
+                <input type="number" [(ngModel)]="tipPercent" min="0">
+            </label>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <span>Total with tip</span>
+                <strong>${{ getSplitTotal() | number:'1.2-2' }}</strong>
+            </div>
+            <div class="metric-card status">
+                <span>Each person pays</span>
+                <strong>${{ getSplitAmount() | number:'1.2-2' }}</strong>
+            </div>
+        </div>
+    </section>
     </div>
 </div>

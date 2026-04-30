@@ -24,6 +24,10 @@ export class SmartToolsComponent {
     currentSavings = 820;
     monthlyContribution = 260;
 
+    billTotal = 96;
+    splitPeople = 4;
+    tipPercent = 18;
+
     getRemainingAfterSpending(): number {
         return Math.max(this.monthlyIncome - this.monthlySpending, 0);
     }
@@ -66,5 +70,14 @@ export class SmartToolsComponent {
         if (remaining === 0) return 0;
         if (this.monthlyContribution <= 0) return 0;
         return Math.ceil(remaining / this.monthlyContribution);
+    }
+
+    getSplitTotal(): number {
+        return this.billTotal + (this.billTotal * this.tipPercent / 100);
+    }
+
+    getSplitAmount(): number {
+        if (this.splitPeople <= 0) return 0;
+        return this.getSplitTotal() / this.splitPeople;
     }
 }
