@@ -28,6 +28,10 @@ export class SmartToolsComponent {
     splitPeople = 4;
     tipPercent = 18;
 
+    loanAmount = 6500;
+    loanApr = 9.5;
+    loanMonths = 24;
+
     getRemainingAfterSpending(): number {
         return Math.max(this.monthlyIncome - this.monthlySpending, 0);
     }
@@ -79,5 +83,17 @@ export class SmartToolsComponent {
     getSplitAmount(): number {
         if (this.splitPeople <= 0) return 0;
         return this.getSplitTotal() / this.splitPeople;
+    }
+
+    getMonthlyLoanPayment(): number {
+        if (this.loanMonths <= 0) return 0;
+        const monthlyRate = this.loanApr / 100 / 12;
+        if (monthlyRate === 0) return this.loanAmount / this.loanMonths;
+        const factor = Math.pow(1 + monthlyRate, this.loanMonths);
+        return this.loanAmount * monthlyRate * factor / (factor - 1);
+    }
+
+    getTotalLoanInterest(): number {
+        return Math.max((this.getMonthlyLoanPayment() * this.loanMonths) - this.loanAmount, 0);
     }
 }
