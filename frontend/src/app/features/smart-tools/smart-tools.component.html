@@ -1,0 +1,344 @@
+<div class="smart-tools-page">
+    <div class="page-header">
+        <h1>Smart Tools</h1>
+        <p class="subtitle">Feature 1: plan your monthly budget before money moves out.</p>
+    </div>
+
+    <div class="tools-grid">
+    <section class="tool-card">
+        <div class="tool-header">
+            <span class="tool-kicker">Feature 1</span>
+            <h2>Monthly Budget Planner</h2>
+            <p>Estimate how much money is available after spending, bills, and savings goals.</p>
+        </div>
+
+        <div class="input-grid">
+            <label>
+                Monthly Income
+                <input type="number" [(ngModel)]="monthlyIncome" min="0">
+            </label>
+            <label>
+                Current Spending
+                <input type="number" [(ngModel)]="monthlySpending" min="0">
+            </label>
+            <label>
+                Fixed Bills
+                <input type="number" [(ngModel)]="fixedBills" min="0">
+            </label>
+            <label>
+                Savings Target
+                <input type="number" [(ngModel)]="savingsTarget" min="0">
+            </label>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <span>Remaining after spending</span>
+                <strong>${{ getRemainingAfterSpending() | number:'1.2-2' }}</strong>
+            </div>
+            <div class="metric-card">
+                <span>Flexible monthly budget</span>
+                <strong>${{ getFlexibleBudget() | number:'1.2-2' }}</strong>
+            </div>
+            <div class="metric-card">
+                <span>Savings rate</span>
+                <strong>{{ getSavingsRate() | number:'1.0-1' }}%</strong>
+            </div>
+            <div class="metric-card status">
+                <span>Budget health</span>
+                <strong>{{ getBudgetHealth() }}</strong>
+            </div>
+        </div>
+    </section>
+
+    <section class="tool-card accent-green">
+        <div class="tool-header">
+            <span class="tool-kicker">Feature 2</span>
+            <h2>Category Limit Guard</h2>
+            <p>Track one spending category against its monthly limit.</p>
+        </div>
+
+        <div class="input-grid">
+            <label>
+                Category
+                <select [(ngModel)]="selectedCategory">
+                    <option>Food</option>
+                    <option>Shopping</option>
+                    <option>Transportation</option>
+                    <option>Bills</option>
+                    <option>Entertainment</option>
+                </select>
+            </label>
+            <label>
+                Spent
+                <input type="number" [(ngModel)]="categorySpent" min="0">
+            </label>
+            <label>
+                Limit
+                <input type="number" [(ngModel)]="categoryLimit" min="0">
+            </label>
+        </div>
+
+        <div class="progress-track">
+            <span [style.width.%]="getCategoryUsage()"></span>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <span>{{ selectedCategory }} usage</span>
+                <strong>{{ getCategoryUsage() | number:'1.0-0' }}%</strong>
+            </div>
+            <div class="metric-card status">
+                <span>Category status</span>
+                <strong>{{ getCategoryStatus() }}</strong>
+            </div>
+        </div>
+    </section>
+
+    <section class="tool-card accent-gold">
+        <div class="tool-header">
+            <span class="tool-kicker">Feature 3</span>
+            <h2>Savings Goal Tracker</h2>
+            <p>Plan progress toward a specific savings target.</p>
+        </div>
+
+        <div class="input-grid">
+            <label>
+                Goal Name
+                <input type="text" [(ngModel)]="goalName">
+            </label>
+            <label>
+                Goal Amount
+                <input type="number" [(ngModel)]="goalAmount" min="0">
+            </label>
+            <label>
+                Saved So Far
+                <input type="number" [(ngModel)]="currentSavings" min="0">
+            </label>
+            <label>
+                Monthly Add
+                <input type="number" [(ngModel)]="monthlyContribution" min="0">
+            </label>
+        </div>
+
+        <div class="progress-track">
+            <span [style.width.%]="getGoalProgress()"></span>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <span>{{ goalName }} progress</span>
+                <strong>{{ getGoalProgress() | number:'1.0-0' }}%</strong>
+            </div>
+            <div class="metric-card">
+                <span>Months remaining</span>
+                <strong>{{ getMonthsToGoal() }}</strong>
+            </div>
+        </div>
+    </section>
+
+    <section class="tool-card accent-purple">
+        <div class="tool-header">
+            <span class="tool-kicker">Feature 4</span>
+            <h2>Split Bill Calculator</h2>
+            <p>Split shared payments with tip included.</p>
+        </div>
+
+        <div class="input-grid">
+            <label>
+                Bill Total
+                <input type="number" [(ngModel)]="billTotal" min="0">
+            </label>
+            <label>
+                People
+                <input type="number" [(ngModel)]="splitPeople" min="1">
+            </label>
+            <label>
+                Tip %
+                <input type="number" [(ngModel)]="tipPercent" min="0">
+            </label>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <span>Total with tip</span>
+                <strong>${{ getSplitTotal() | number:'1.2-2' }}</strong>
+            </div>
+            <div class="metric-card status">
+                <span>Each person pays</span>
+                <strong>${{ getSplitAmount() | number:'1.2-2' }}</strong>
+            </div>
+        </div>
+    </section>
+
+    <section class="tool-card accent-red">
+        <div class="tool-header">
+            <span class="tool-kicker">Feature 5</span>
+            <h2>Loan Payment Estimator</h2>
+            <p>Preview monthly loan payments before applying.</p>
+        </div>
+
+        <div class="input-grid">
+            <label>
+                Loan Amount
+                <input type="number" [(ngModel)]="loanAmount" min="0">
+            </label>
+            <label>
+                APR %
+                <input type="number" [(ngModel)]="loanApr" min="0" step="0.1">
+            </label>
+            <label>
+                Months
+                <input type="number" [(ngModel)]="loanMonths" min="1">
+            </label>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card status">
+                <span>Monthly payment</span>
+                <strong>${{ getMonthlyLoanPayment() | number:'1.2-2' }}</strong>
+            </div>
+            <div class="metric-card">
+                <span>Total interest</span>
+                <strong>${{ getTotalLoanInterest() | number:'1.2-2' }}</strong>
+            </div>
+        </div>
+    </section>
+
+    <section class="tool-card accent-cyan">
+        <div class="tool-header">
+            <span class="tool-kicker">Feature 6</span>
+            <h2>Emergency Fund Check</h2>
+            <p>Measure emergency savings against a 3-month spending target.</p>
+        </div>
+
+        <div class="input-grid">
+            <label>
+                Monthly Spend
+                <input type="number" [(ngModel)]="emergencyMonthlySpend" min="0">
+            </label>
+            <label>
+                Emergency Saved
+                <input type="number" [(ngModel)]="emergencySaved" min="0">
+            </label>
+        </div>
+
+        <div class="progress-track">
+            <span [style.width.%]="getEmergencyProgress()"></span>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <span>3-month target</span>
+                <strong>${{ getEmergencyTarget() | number:'1.0-0' }}</strong>
+            </div>
+            <div class="metric-card status">
+                <span>Remaining gap</span>
+                <strong>${{ getEmergencyGap() | number:'1.0-0' }}</strong>
+            </div>
+        </div>
+    </section>
+
+    <section class="tool-card accent-pink">
+        <div class="tool-header">
+            <span class="tool-kicker">Feature 7</span>
+            <h2>Subscription Audit</h2>
+            <p>Review recurring subscriptions and estimate yearly cost.</p>
+        </div>
+
+        <div class="subscription-list">
+            @for (item of subscriptions; track $index) {
+            <div class="subscription-item">
+                <input type="text" [(ngModel)]="item.name" aria-label="Subscription name">
+                <input type="number" [(ngModel)]="item.cost" min="0" aria-label="Subscription cost">
+                <button type="button" (click)="removeSubscription($index)">Remove</button>
+            </div>
+            }
+        </div>
+
+        <button type="button" class="secondary-btn" (click)="addSubscription()">Add Subscription</button>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <span>Monthly total</span>
+                <strong>${{ getMonthlySubscriptionTotal() | number:'1.2-2' }}</strong>
+            </div>
+            <div class="metric-card status">
+                <span>Annual total</span>
+                <strong>${{ getAnnualSubscriptionTotal() | number:'1.2-2' }}</strong>
+            </div>
+        </div>
+    </section>
+
+    <section class="tool-card accent-lime">
+        <div class="tool-header">
+            <span class="tool-kicker">Feature 8</span>
+            <h2>Cashback Estimator</h2>
+            <p>Estimate rewards before making a wallet, bill, or card payment.</p>
+        </div>
+
+        <div class="input-grid">
+            <label>
+                Purchase Amount
+                <input type="number" [(ngModel)]="cashbackPurchaseAmount" min="0">
+            </label>
+            <label>
+                Cashback %
+                <input type="number" [(ngModel)]="cashbackRate" min="0" step="0.1">
+            </label>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card status">
+                <span>Estimated cashback</span>
+                <strong>${{ getCashbackEstimate() | number:'1.2-2' }}</strong>
+            </div>
+            <div class="metric-card">
+                <span>Net after rewards</span>
+                <strong>${{ getNetAfterCashback() | number:'1.2-2' }}</strong>
+            </div>
+        </div>
+    </section>
+
+    <section class="tool-card accent-orange">
+        <div class="tool-header">
+            <span class="tool-kicker">Feature 9</span>
+            <h2>Payment Risk Checklist</h2>
+            <p>Flag common warning signs before sending money or scanning a QR code.</p>
+        </div>
+
+        <div class="risk-list">
+            @for (signal of fraudSignals; track signal.label; let i = $index) {
+            <button type="button" [class.selected]="signal.checked" (click)="toggleFraudSignal(i)">
+                {{ signal.label }}
+            </button>
+            }
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <span>Risk score</span>
+                <strong>{{ getFraudRiskScore() }}/100</strong>
+            </div>
+            <div class="metric-card status">
+                <span>Recommendation</span>
+                <strong>{{ getFraudRiskLabel() }}</strong>
+            </div>
+        </div>
+    </section>
+
+    <section class="tool-card accent-slate">
+        <div class="tool-header">
+            <span class="tool-kicker">Feature 10</span>
+            <h2>Smart Action Plan</h2>
+            <p>Convert the numbers on this page into next-step recommendations.</p>
+        </div>
+
+        <ul class="action-plan">
+            @for (action of getSmartActions(); track action) {
+            <li>{{ action }}</li>
+            }
+        </ul>
+    </section>
+    </div>
+</div>

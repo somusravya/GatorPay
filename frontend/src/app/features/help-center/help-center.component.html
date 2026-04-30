@@ -1,0 +1,83 @@
+<div class="help-page">
+    <header class="page-header">
+        <div>
+            <span class="eyebrow">Support</span>
+            <h1>Help Center</h1>
+            <p>Find answers, create support tickets, and track open requests.</p>
+        </div>
+        <div class="support-card">
+            <span>Average response</span>
+            <strong>2h</strong>
+        </div>
+    </header>
+
+    <section class="knowledge-panel">
+        <div class="search-row">
+            <input [(ngModel)]="query" type="search" placeholder="Search help articles" />
+        </div>
+
+        <div class="article-grid">
+            @for (article of filteredArticles(); track article.title) {
+            <article class="article-card">
+                <span class="article-icon">{{ article.icon }}</span>
+                <div>
+                    <span class="category">{{ article.category }}</span>
+                    <h3>{{ article.title }}</h3>
+                    <p>{{ article.summary }}</p>
+                </div>
+            </article>
+            } @empty {
+            <div class="empty-state">No articles match your search.</div>
+            }
+        </div>
+    </section>
+
+    <div class="support-layout">
+        <section class="ticket-form">
+            <h2>Create a ticket</h2>
+            <label>
+                Subject
+                <input [(ngModel)]="ticketForm.subject" type="text" placeholder="What happened?" />
+            </label>
+            <div class="form-row">
+                <label>
+                    Category
+                    <select [(ngModel)]="ticketForm.category">
+                        <option value="payments">Payments</option>
+                        <option value="cards">Cards</option>
+                        <option value="account">Account</option>
+                        <option value="security">Security</option>
+                    </select>
+                </label>
+                <label>
+                    Priority
+                    <select [(ngModel)]="ticketForm.priority">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </label>
+            </div>
+            <label>
+                Details
+                <textarea [(ngModel)]="ticketForm.message" rows="5" placeholder="Add helpful context"></textarea>
+            </label>
+            <button type="button" (click)="submitTicket()">Submit ticket</button>
+        </section>
+
+        <section class="ticket-list">
+            <h2>Your tickets</h2>
+            @for (ticket of tickets(); track ticket.id) {
+            <article class="ticket-item">
+                <div>
+                    <strong>{{ ticket.subject }}</strong>
+                    <span>{{ ticket.category | titlecase }} • {{ ticket.priority | titlecase }}</span>
+                </div>
+                <span class="status">{{ ticket.status | uppercase }}</span>
+            </article>
+            } @empty {
+            <div class="empty-state">No support tickets yet.</div>
+            }
+        </section>
+    </div>
+</div>
