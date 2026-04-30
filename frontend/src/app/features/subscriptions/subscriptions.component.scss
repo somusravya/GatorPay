@@ -1,0 +1,75 @@
+.subscriptions-page { max-width: 900px; margin: 0 auto; }
+.page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;
+    h1 { font-size: 1.75rem; font-weight: 700; }
+    .subtitle { color: #94a3b8; font-size: 0.875rem; margin-top: 4px; }
+}
+.stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+.stat-card { background: rgba(30,41,59,0.7); border: 1px solid rgba(255,255,255,0.05); border-radius: 14px; padding: 16px; display: flex; align-items: center; gap: 12px;
+    .stat-icon { font-size: 1.5rem; }
+    .stat-label { font-size: 0.75rem; color: #64748b; display: block; }
+    .stat-value { font-size: 1.1rem; font-weight: 700; color: #f1f5f9; }
+}
+
+.track-form-card { background: rgba(30,41,59,0.7); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 24px; margin-bottom: 24px; animation: slideDown 0.3s ease;
+    h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; }
+}
+
+.sub-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 24px; }
+.sub-card { background: rgba(30,41,59,0.7); border: 1px solid rgba(255,255,255,0.05); border-radius: 14px; padding: 16px; border-left: 4px solid; transition: all 0.3s;
+    &:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+}
+.sub-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
+    .sub-icon { font-size: 1.5rem; }
+    .sub-info { flex: 1;
+        h4 { font-weight: 600; font-size: 0.95rem; }
+        .sub-provider { font-size: 0.75rem; color: #64748b; }
+    }
+    .sub-amount { font-size: 1.1rem; font-weight: 800; color: #f1f5f9; }
+}
+.sub-details { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
+    .sub-freq { font-size: 0.75rem; color: #94a3b8; text-transform: capitalize; background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px; }
+    .sub-renewal { font-size: 0.75rem; color: #64748b;
+        .days-badge { background: rgba(59,130,246,0.15); color: #60a5fa; padding: 1px 6px; border-radius: 4px; font-weight: 600; margin-left: 6px; }
+    }
+}
+.sub-actions { display: flex; justify-content: space-between; align-items: center;
+    .toggle-btn { font-size: 0.75rem; padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); background: rgba(15,23,42,0.5); color: #94a3b8; cursor: pointer; transition: all 0.2s;
+        &.active { background: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.3); color: #22c55e; }
+    }
+    .sub-status { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; padding: 3px 8px; border-radius: 4px;
+        &.status-active { background: rgba(34,197,94,0.15); color: #22c55e; }
+        &.status-paused { background: rgba(245,158,11,0.15); color: #f59e0b; }
+        &.status-cancelled { background: rgba(100,116,139,0.15); color: #64748b; }
+    }
+}
+
+.section { margin-top: 32px;
+    h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; }
+}
+
+.renewals-timeline { display: flex; flex-direction: column; gap: 8px; }
+.renewal-item { display: flex; align-items: center; gap: 12px; background: rgba(30,41,59,0.5); border: 1px solid rgba(255,255,255,0.04); border-radius: 10px; padding: 12px 16px;
+    .renewal-icon { font-size: 1.25rem; }
+    .renewal-info { flex: 1;
+        .renewal-name { font-weight: 600; font-size: 0.85rem; display: block; }
+        .renewal-date { font-size: 0.75rem; color: #64748b; }
+    }
+    .renewal-amount { font-weight: 700; color: #f59e0b; }
+}
+
+.suggestions-list { display: flex; flex-direction: column; gap: 10px; }
+.suggestion-card { display: flex; align-items: center; gap: 14px; background: rgba(30,41,59,0.5); border: 1px solid rgba(245,158,11,0.1); border-radius: 12px; padding: 14px 18px; transition: border-color 0.3s;
+    &:hover { border-color: rgba(245,158,11,0.3); }
+    .suggestion-icon { font-size: 1.5rem; }
+    .suggestion-content { flex: 1;
+        h4 { font-size: 0.85rem; font-weight: 700; }
+        p { font-size: 0.75rem; color: #94a3b8; margin-top: 2px; }
+    }
+    .suggestion-savings { font-size: 0.75rem; font-weight: 700; color: #22c55e; background: rgba(34,197,94,0.1); padding: 4px 10px; border-radius: 6px; white-space: nowrap; }
+}
+
+@keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 768px) {
+    .stats-row, .sub-grid { grid-template-columns: 1fr; }
+}

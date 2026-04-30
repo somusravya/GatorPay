@@ -1,0 +1,102 @@
+<div class="social-page" [class.drawer-open]="showFriendDrawer">
+    <div class="page-header">
+        <h1>👥 Social Pay</h1>
+        <div class="header-actions">
+            <button class="btn-secondary" (click)="showFriendDrawer = !showFriendDrawer">
+                {{ showFriendDrawer ? '✕ Close' : '👫 Friends' }} ({{ friends().length }})
+            </button>
+            <button class="btn-primary" (click)="showComposer = !showComposer">{{ showComposer ? '✕ Close' : '✍️ New Post' }}</button>
+        </div>
+    </div>
+
+    <div class="social-layout">
+        <!-- Main Feed -->
+        <div class="feed-column">
+            @if (showComposer) {
+            <div class="composer-card">
+                <div class="composer-emojis">
+                    @for (e of emojis; track e) {
+                    <button class="emoji-btn" [class.selected]="newPost.emoji === e" (click)="newPost.emoji = e">{{ e }}</button>
+                    }
+                </div>
+                <textarea [(ngModel)]="newPost.note" placeholder="What's the payment for?" rows="2"></textarea>
+                <div class="composer-footer">
+                    <select [(ngModel)]="newPost.privacy">
+                        <option value="public">🌍 Public</option>
+                        <option value="friends">👥 Friends</option>
+                        <option value="private">🔒 Private</option>
+                    </select>
+                    <input type="number" [(ngModel)]="newPost.amount" placeholder="Amount" min="0" class="amount-input">
+                    <button class="btn-primary" (click)="createPost()" [disabled]="!newPost.note.trim()">Post</button>
+                </div>
+            </div>
+            }
+
+            @if (loading()) {
+            <div class="feed-skeleton">@for (i of [1,2,3]; track i) { <div class="skeleton-card"></div> }</div>
+            } @else if (feed().length) {
+            <div class="feed-timeline">
+                @for (item of feed(); track item.id) {
+                <div class="feed-item">
+                    <div class="feed-avatar">{{ item.emoji || '💸' }}</div>
+                    <div class="feed-content">
+                        <div class="feed-header">
+                            <span class="feed-user">{{ item.user?.first_name || 'User' }} {{ item.user?.last_name || '' }}</span>
+                            <span class="feed-arrow">→</span>
+                            <span class="feed-recipient">{{ item.recipient?.first_name || 'Someone' }}</span>
+                            <span class="feed-time">{{ getTimeAgo(item.created_at) }}</span>
+                        </div>
+                        <p class="feed-note">{{ item.note }}</p>
+                        @if (item.amount > 0) {
+                        <span class="feed-amount">${{ item.amount }}</span>
+                        }
+                        <div class="feed-actions">
+                            <button class="feed-action-btn" (click)="likePost(item)">❤️ {{ item.like_count || 0 }}</button>
+                            <button class="feed-action-btn" (click)="toggleComments(item.id)">💬 {{ item.comment_count || 0 }}</button>
+                            <span class="privacy-indicator">
+                                {{ item.privacy === 'public' ? '🌍' : item.privacy === 'friends' ? '👥' : '🔒' }}
+                            </span>
+                        </div>
+                        <!-- Comment Thread -->
+                        @if (expandedComments[item.id]) {
+                        <div class="comment-section">
+                            <div class="comment-input-row">
+                                <input [(ngModel)]="commentText[item.id]" placeholder="Write a comment..." (keyup.enter)="postComment(item)">
+                                <button class="btn-comment" (click)="postComment(item)" [disabled]="!(commentText[item.id] || '').trim()">Send</button>
+                            </div>
+                        </div>
+                        }
+                    </div>
+                </div>
+                }
+            </div>
+            } @else {
+            <div class="empty-state"><span class="empty-icon">👥</span><h3>No activity yet</h3><p>Start making social payments to see your feed!</p></div>
+            }
+        </div>
+
+        <!-- Friend Drawer -->
+        @if (showFriendDrawer) {
+        <div class="friend-drawer">
+            <h3>👫 Friends</h3>
+            <input class="friend-search" [(ngModel)]="friendSearch" placeholder="Search friends...">
+            <div class="friend-list">
+                @for (f of friends(); track f.id) {
+                <div class="friend-item">
+                    <div class="friend-avatar">{{ f.friend?.first_name?.charAt(0) || '?' }}</div>
+                    <div class="friend-info">
+                        <span class="friend-name">{{ f.friend?.first_name }} {{ f.friend?.last_name }}</span>
+                        <span class="friend-status">{{ f.status }}</span>
+                    </div>
+                </div>
+                }
+                @if (!friends().length) {
+                <div class="empty-friends">
+                    <p>No friends yet. Add friends to see them here!</p>
+                </div>
+                }
+            </div>
+        </div>
+        }
+    </div>
+</div>
