@@ -1,0 +1,52 @@
+<div class="smart-tools-page">
+    <div class="page-header">
+        <h1>Smart Tools</h1>
+        <p class="subtitle">Feature 1: plan your monthly budget before money moves out.</p>
+    </div>
+
+    <section class="budget-card">
+        <div class="tool-header">
+            <span class="tool-kicker">Feature 1</span>
+            <h2>Monthly Budget Planner</h2>
+            <p>Estimate how much money is available after spending, bills, and savings goals.</p>
+        </div>
+
+        <div class="input-grid">
+            <label>
+                Monthly Income
+                <input type="number" [(ngModel)]="monthlyIncome" min="0">
+            </label>
+            <label>
+                Current Spending
+                <input type="number" [(ngModel)]="monthlySpending" min="0">
+            </label>
+            <label>
+                Fixed Bills
+                <input type="number" [(ngModel)]="fixedBills" min="0">
+            </label>
+            <label>
+                Savings Target
+                <input type="number" [(ngModel)]="savingsTarget" min="0">
+            </label>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <span>Remaining after spending</span>
+                <strong>${{ getRemainingAfterSpending() | number:'1.2-2' }}</strong>
+            </div>
+            <div class="metric-card">
+                <span>Flexible monthly budget</span>
+                <strong>${{ getFlexibleBudget() | number:'1.2-2' }}</strong>
+            </div>
+            <div class="metric-card">
+                <span>Savings rate</span>
+                <strong>{{ getSavingsRate() | number:'1.0-1' }}%</strong>
+            </div>
+            <div class="metric-card status">
+                <span>Budget health</span>
+                <strong>{{ getBudgetHealth() }}</strong>
+            </div>
+        </div>
+    </section>
+</div>

@@ -1,0 +1,37 @@
+import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+
+@Component({
+    selector: 'app-smart-tools',
+    standalone: true,
+    imports: [CommonModule, FormsModule],
+    templateUrl: './smart-tools.component.html',
+    styleUrl: './smart-tools.component.scss'
+})
+export class SmartToolsComponent {
+    monthlyIncome = 4200;
+    monthlySpending = 2850;
+    fixedBills = 1250;
+    savingsTarget = 500;
+
+    getRemainingAfterSpending(): number {
+        return Math.max(this.monthlyIncome - this.monthlySpending, 0);
+    }
+
+    getFlexibleBudget(): number {
+        return Math.max(this.monthlyIncome - this.fixedBills - this.savingsTarget, 0);
+    }
+
+    getSavingsRate(): number {
+        if (this.monthlyIncome <= 0) return 0;
+        return Math.min((this.savingsTarget / this.monthlyIncome) * 100, 100);
+    }
+
+    getBudgetHealth(): string {
+        const remaining = this.getRemainingAfterSpending();
+        if (remaining >= this.savingsTarget) return 'On track';
+        if (remaining > 0) return 'Needs review';
+        return 'Over budget';
+    }
+}

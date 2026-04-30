@@ -61,6 +61,11 @@ export const routes: Routes = [
                     import('./features/help-center/help-center.component').then(m => m.HelpCenterComponent)
             },
             {
+                path: 'smart-tools',
+                loadComponent: () =>
+                    import('./features/smart-tools/smart-tools.component').then(m => m.SmartToolsComponent)
+            },
+            {
                 path: 'profile',
                 loadComponent: () =>
                     import('./features/profile/profile.component').then(m => m.ProfileComponent)

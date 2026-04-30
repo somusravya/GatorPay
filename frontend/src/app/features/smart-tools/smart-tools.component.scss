@@ -1,0 +1,108 @@
+.smart-tools-page {
+    color: #e2e8f0;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.page-header {
+    margin-bottom: 1.5rem;
+
+    h1 {
+        color: #f8fafc;
+        font-size: 1.85rem;
+        margin: 0;
+    }
+}
+
+.subtitle {
+    color: #94a3b8;
+    margin: 0.35rem 0 0;
+}
+
+.budget-card {
+    background: #1e293b;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: 4px solid #3b82f6;
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+.tool-header {
+    margin-bottom: 1.25rem;
+
+    h2 {
+        color: #f8fafc;
+        font-size: 1.2rem;
+        margin: 0.2rem 0;
+    }
+
+    p {
+        color: #94a3b8;
+        margin: 0;
+    }
+}
+
+.tool-kicker {
+    color: #3b82f6;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.input-grid,
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+}
+
+label {
+    color: #94a3b8;
+    display: flex;
+    flex-direction: column;
+    font-size: 0.82rem;
+    gap: 0.35rem;
+}
+
+input {
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: #f8fafc;
+    min-height: 42px;
+    padding: 0 0.75rem;
+    width: 100%;
+    box-sizing: border-box;
+
+    &:focus {
+        border-color: #3b82f6;
+        outline: none;
+    }
+}
+
+.metrics-grid {
+    margin-top: 1.25rem;
+}
+
+.metric-card {
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 1rem;
+
+    span {
+        color: #94a3b8;
+        display: block;
+        font-size: 0.82rem;
+        margin-bottom: 0.35rem;
+    }
+
+    strong {
+        color: #f8fafc;
+        font-size: 1.25rem;
+    }
+
+    &.status strong {
+        color: #86efac;
+    }
+}

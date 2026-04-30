@@ -26,7 +26,8 @@ export class DashboardComponent implements OnInit {
         { label: 'Transfer', icon: '💸', route: '/transfer', color: '#8b5cf6' },
         { label: 'Pay Bills', icon: '📄', route: '/bills', color: '#06b6d4' },
         { label: 'Rewards', icon: '🎁', route: '/rewards', color: '#22c55e' },
-        { label: 'Transactions', icon: '📜', route: '/transactions', color: '#f59e0b' }
+        { label: 'Transactions', icon: '📜', route: '/transactions', color: '#f59e0b' },
+        { label: 'Smart Tools', icon: '🧮', route: '/smart-tools', color: '#ec4899' }
     ];
 
     ngOnInit(): void {
