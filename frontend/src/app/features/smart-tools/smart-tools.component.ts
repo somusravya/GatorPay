@@ -2,6 +2,11 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
+interface SubscriptionItem {
+    name: string;
+    cost: number;
+}
+
 @Component({
     selector: 'app-smart-tools',
     standalone: true,
@@ -34,6 +39,12 @@ export class SmartToolsComponent {
 
     emergencyMonthlySpend = 2200;
     emergencySaved = 1800;
+
+    subscriptions: SubscriptionItem[] = [
+        { name: 'Streaming bundle', cost: 22 },
+        { name: 'Cloud storage', cost: 9 },
+        { name: 'Fitness app', cost: 14 }
+    ];
 
     getRemainingAfterSpending(): number {
         return Math.max(this.monthlyIncome - this.monthlySpending, 0);
@@ -112,5 +123,24 @@ export class SmartToolsComponent {
 
     getEmergencyGap(): number {
         return Math.max(this.getEmergencyTarget() - this.emergencySaved, 0);
+    }
+
+    getMonthlySubscriptionTotal(): number {
+        return this.subscriptions.reduce((total, item) => total + Number(item.cost || 0), 0);
+    }
+
+    getAnnualSubscriptionTotal(): number {
+        return this.getMonthlySubscriptionTotal() * 12;
+    }
+
+    addSubscription(): void {
+        this.subscriptions = [
+            ...this.subscriptions,
+            { name: `Subscription ${this.subscriptions.length + 1}`, cost: 10 }
+        ];
+    }
+
+    removeSubscription(index: number): void {
+        this.subscriptions = this.subscriptions.filter((_, itemIndex) => itemIndex !== index);
     }
 }

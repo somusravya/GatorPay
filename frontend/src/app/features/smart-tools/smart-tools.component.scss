@@ -132,6 +132,38 @@ input[type="text"] {
     }
 }
 
+.subscription-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.subscription-item {
+    display: grid;
+    grid-template-columns: 1fr 90px auto;
+    gap: 0.5rem;
+
+    button {
+        background: rgba(239, 68, 68, 0.12);
+        border: 1px solid rgba(239, 68, 68, 0.25);
+        border-radius: 8px;
+        color: #fca5a5;
+        cursor: pointer;
+        padding: 0 0.65rem;
+    }
+}
+
+.secondary-btn {
+    align-self: flex-start;
+    background: rgba(59, 130, 246, 0.14);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 8px;
+    color: #bfdbfe;
+    cursor: pointer;
+    margin-top: 0.75rem;
+    padding: 0.6rem 0.85rem;
+}
+
 .accent-green {
     --accent: #22c55e;
 }
@@ -150,4 +182,14 @@ input[type="text"] {
 
 .accent-cyan {
     --accent: #06b6d4;
+}
+
+.accent-pink {
+    --accent: #ec4899;
+}
+
+@media (max-width: 640px) {
+    .subscription-item {
+        grid-template-columns: 1fr;
+    }
 }

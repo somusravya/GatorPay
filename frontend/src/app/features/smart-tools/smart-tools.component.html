@@ -238,5 +238,36 @@
             </div>
         </div>
     </section>
+
+    <section class="tool-card accent-pink">
+        <div class="tool-header">
+            <span class="tool-kicker">Feature 7</span>
+            <h2>Subscription Audit</h2>
+            <p>Review recurring subscriptions and estimate yearly cost.</p>
+        </div>
+
+        <div class="subscription-list">
+            @for (item of subscriptions; track $index) {
+            <div class="subscription-item">
+                <input type="text" [(ngModel)]="item.name" aria-label="Subscription name">
+                <input type="number" [(ngModel)]="item.cost" min="0" aria-label="Subscription cost">
+                <button type="button" (click)="removeSubscription($index)">Remove</button>
+            </div>
+            }
+        </div>
+
+        <button type="button" class="secondary-btn" (click)="addSubscription()">Add Subscription</button>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <span>Monthly total</span>
+                <strong>${{ getMonthlySubscriptionTotal() | number:'1.2-2' }}</strong>
+            </div>
+            <div class="metric-card status">
+                <span>Annual total</span>
+                <strong>${{ getAnnualSubscriptionTotal() | number:'1.2-2' }}</strong>
+            </div>
+        </div>
+    </section>
     </div>
 </div>
