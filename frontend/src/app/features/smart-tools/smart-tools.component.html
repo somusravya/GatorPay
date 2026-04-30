@@ -4,7 +4,8 @@
         <p class="subtitle">Feature 1: plan your monthly budget before money moves out.</p>
     </div>
 
-    <section class="budget-card">
+    <div class="tools-grid">
+    <section class="tool-card">
         <div class="tool-header">
             <span class="tool-kicker">Feature 1</span>
             <h2>Monthly Budget Planner</h2>
@@ -49,4 +50,49 @@
             </div>
         </div>
     </section>
+
+    <section class="tool-card accent-green">
+        <div class="tool-header">
+            <span class="tool-kicker">Feature 2</span>
+            <h2>Category Limit Guard</h2>
+            <p>Track one spending category against its monthly limit.</p>
+        </div>
+
+        <div class="input-grid">
+            <label>
+                Category
+                <select [(ngModel)]="selectedCategory">
+                    <option>Food</option>
+                    <option>Shopping</option>
+                    <option>Transportation</option>
+                    <option>Bills</option>
+                    <option>Entertainment</option>
+                </select>
+            </label>
+            <label>
+                Spent
+                <input type="number" [(ngModel)]="categorySpent" min="0">
+            </label>
+            <label>
+                Limit
+                <input type="number" [(ngModel)]="categoryLimit" min="0">
+            </label>
+        </div>
+
+        <div class="progress-track">
+            <span [style.width.%]="getCategoryUsage()"></span>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <span>{{ selectedCategory }} usage</span>
+                <strong>{{ getCategoryUsage() | number:'1.0-0' }}%</strong>
+            </div>
+            <div class="metric-card status">
+                <span>Category status</span>
+                <strong>{{ getCategoryStatus() }}</strong>
+            </div>
+        </div>
+    </section>
+    </div>
 </div>

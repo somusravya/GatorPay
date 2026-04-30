@@ -19,10 +19,15 @@
     margin: 0.35rem 0 0;
 }
 
-.budget-card {
+.tools-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.tool-card {
     background: #1e293b;
     border: 1px solid rgba(255, 255, 255, 0.06);
-    border-top: 4px solid #3b82f6;
+    border-top: 4px solid var(--accent, #3b82f6);
     border-radius: 8px;
     padding: 1.5rem;
 }
@@ -64,7 +69,8 @@ label {
     gap: 0.35rem;
 }
 
-input {
+input,
+select {
     background: #0f172a;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 8px;
@@ -75,7 +81,7 @@ input {
     box-sizing: border-box;
 
     &:focus {
-        border-color: #3b82f6;
+        border-color: var(--accent, #3b82f6);
         outline: none;
     }
 }
@@ -105,4 +111,23 @@ input {
     &.status strong {
         color: #86efac;
     }
+}
+
+.progress-track {
+    background: #0f172a;
+    border-radius: 999px;
+    height: 10px;
+    margin-top: 1rem;
+    overflow: hidden;
+
+    span {
+        background: var(--accent, #3b82f6);
+        display: block;
+        height: 100%;
+        transition: width 0.2s ease;
+    }
+}
+
+.accent-green {
+    --accent: #22c55e;
 }

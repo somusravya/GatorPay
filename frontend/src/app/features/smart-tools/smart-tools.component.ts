@@ -15,6 +15,10 @@ export class SmartToolsComponent {
     fixedBills = 1250;
     savingsTarget = 500;
 
+    selectedCategory = 'Food';
+    categorySpent = 185;
+    categoryLimit = 450;
+
     getRemainingAfterSpending(): number {
         return Math.max(this.monthlyIncome - this.monthlySpending, 0);
     }
@@ -33,5 +37,17 @@ export class SmartToolsComponent {
         if (remaining >= this.savingsTarget) return 'On track';
         if (remaining > 0) return 'Needs review';
         return 'Over budget';
+    }
+
+    getCategoryUsage(): number {
+        if (this.categoryLimit <= 0) return 0;
+        return Math.min((this.categorySpent / this.categoryLimit) * 100, 100);
+    }
+
+    getCategoryStatus(): string {
+        const usage = this.getCategoryUsage();
+        if (usage >= 90) return 'Limit warning';
+        if (usage >= 70) return 'Watch closely';
+        return 'Healthy';
     }
 }
