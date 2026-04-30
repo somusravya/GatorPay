@@ -1,0 +1,70 @@
+.social-page { max-width: 900px; margin: 0 auto; }
+.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;
+    h1 { font-size: 1.75rem; font-weight: 700; }
+    .header-actions { display: flex; gap: 8px; }
+}
+
+.social-layout { display: flex; gap: 20px; }
+.feed-column { flex: 1; min-width: 0; }
+
+.composer-card { background: rgba(30,41,59,0.7); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 16px; margin-bottom: 20px; animation: slideDown 0.3s ease; }
+.composer-emojis { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+.emoji-btn { font-size: 1.25rem; padding: 6px 8px; border-radius: 8px; border: 1px solid transparent; background: rgba(15,23,42,0.5); cursor: pointer; transition: all 0.2s;
+    &.selected { border-color: #3b82f6; background: rgba(59,130,246,0.15); transform: scale(1.15); }
+    &:hover { background: rgba(255,255,255,0.05); }
+}
+.composer-footer { display: flex; gap: 8px; margin-top: 12px; align-items: center;
+    select { max-width: 140px; }
+    .amount-input { max-width: 100px; }
+}
+
+.feed-timeline { display: flex; flex-direction: column; gap: 12px; }
+.feed-item { display: flex; gap: 12px; background: rgba(30,41,59,0.5); border: 1px solid rgba(255,255,255,0.04); border-radius: 14px; padding: 16px; transition: border-color 0.3s;
+    &:hover { border-color: rgba(255,255,255,0.1); }
+}
+.feed-avatar { font-size: 1.5rem; width: 44px; height: 44px; border-radius: 12px; background: rgba(15,23,42,0.6); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.feed-content { flex: 1; min-width: 0; }
+.feed-header { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 6px;
+    .feed-user { font-weight: 700; font-size: 0.85rem; color: #e2e8f0; }
+    .feed-arrow { color: #64748b; font-size: 0.75rem; }
+    .feed-recipient { font-weight: 600; font-size: 0.85rem; color: #94a3b8; }
+    .feed-time { font-size: 0.7rem; color: #475569; margin-left: auto; }
+}
+.feed-note { font-size: 0.85rem; color: #cbd5e1; margin-bottom: 8px; line-height: 1.4; }
+.feed-amount { display: inline-block; font-weight: 800; font-size: 0.9rem; color: #22c55e; background: rgba(34,197,94,0.1); padding: 2px 10px; border-radius: 6px; margin-bottom: 8px; }
+.feed-actions { display: flex; align-items: center; gap: 8px; }
+.feed-action-btn { font-size: 0.75rem; padding: 4px 10px; border-radius: 6px; border: none; background: rgba(15,23,42,0.5); color: #94a3b8; cursor: pointer; transition: all 0.2s;
+    &:hover { background: rgba(255,255,255,0.08); color: #e2e8f0; }
+}
+.privacy-indicator { font-size: 0.7rem; margin-left: auto; }
+
+.comment-section { margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.06); animation: slideDown 0.2s ease; }
+.comment-input-row { display: flex; gap: 8px;
+    input { flex: 1; font-size: 0.8rem; padding: 8px 12px; }
+    .btn-comment { font-size: 0.75rem; padding: 8px 14px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;
+        &:disabled { opacity: 0.4; }
+    }
+}
+
+.friend-drawer { width: 260px; flex-shrink: 0; background: rgba(30,41,59,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 16px; height: fit-content; position: sticky; top: 20px; animation: slideIn 0.3s ease;
+    h3 { font-size: 0.9rem; font-weight: 700; margin-bottom: 12px; }
+}
+.friend-search { margin-bottom: 12px; font-size: 0.8rem; }
+.friend-list { display: flex; flex-direction: column; gap: 6px; }
+.friend-item { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 8px; transition: background 0.2s;
+    &:hover { background: rgba(255,255,255,0.04); }
+}
+.friend-avatar { width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; color: white; }
+.friend-info { display: flex; flex-direction: column;
+    .friend-name { font-size: 0.8rem; font-weight: 600; }
+    .friend-status { font-size: 0.65rem; color: #22c55e; text-transform: capitalize; }
+}
+.empty-friends { padding: 20px; text-align: center; color: #64748b; font-size: 0.8rem; }
+
+@keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideIn { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: translateX(0); } }
+
+@media (max-width: 768px) {
+    .social-layout { flex-direction: column; }
+    .friend-drawer { width: 100%; position: static; }
+}

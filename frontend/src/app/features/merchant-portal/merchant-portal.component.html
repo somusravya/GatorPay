@@ -1,0 +1,139 @@
+<div class="merchant-page">
+    <div class="page-header">
+        <h1>🏪 Merchant Portal</h1>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card"><span class="stat-icon">💰</span><div><span class="stat-label">Total Revenue</span><span class="stat-value">${{ stats.totalRevenue | number:'1.2-2' }}</span></div></div>
+        <div class="stat-card"><span class="stat-icon">📊</span><div><span class="stat-label">Transactions</span><span class="stat-value">{{ stats.totalTransactions }}</span></div></div>
+        <div class="stat-card"><span class="stat-icon">📱</span><div><span class="stat-label">QR Payments</span><span class="stat-value">{{ stats.qrPayments }}</span></div></div>
+        <div class="stat-card"><span class="stat-icon">💵</span><div><span class="stat-label">Avg Order</span><span class="stat-value">${{ stats.avgOrderValue | number:'1.2-2' }}</span></div></div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tab-bar">
+        @for (tab of tabs; track tab.id) {
+        <button class="tab-btn" [class.active]="activeTab === tab.id" (click)="activeTab = tab.id">
+            <span>{{ tab.icon }}</span> {{ tab.label }}
+        </button>
+        }
+    </div>
+
+    <!-- Invoices Tab -->
+    @if (activeTab === 'invoices') {
+    <div class="section">
+        <div class="section-header">
+            <h2>📄 Invoices</h2>
+            <button class="btn-primary" (click)="showInvoiceForm = !showInvoiceForm">{{ showInvoiceForm ? '✕ Cancel' : '📝 New Invoice' }}</button>
+        </div>
+
+        @if (showInvoiceForm) {
+        <div class="form-card">
+            <h3>Create Invoice</h3>
+            <form [formGroup]="invoiceForm" (ngSubmit)="createInvoice()">
+                <div class="form-row">
+                    <div class="form-group"><label>Customer Name</label><input formControlName="customer_name" placeholder="John Doe"></div>
+                    <div class="form-group"><label>Customer Email</label><input formControlName="customer_email" type="email" placeholder="john@example.com"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Amount ($)</label><input formControlName="amount" type="number" min="0.01" step="0.01"></div>
+                    <div class="form-group"><label>Due Date</label><input formControlName="due_date" type="date"></div>
+                </div>
+                <div class="form-group"><label>Description</label><input formControlName="description" placeholder="Payment for services..."></div>
+                <button type="submit" class="btn-primary" [disabled]="invoiceForm.invalid">Send Invoice</button>
+            </form>
+        </div>
+        }
+
+        @if (invoices().length) {
+        <div class="invoice-table">
+            <div class="table-header"><span>Invoice #</span><span>Customer</span><span>Amount</span><span>Status</span><span>Date</span></div>
+            @for (inv of invoices(); track inv.id) {
+            <div class="table-row">
+                <span class="inv-number">{{ inv.invoice_number }}</span>
+                <span>{{ inv.customer_name }}</span>
+                <span class="inv-amount">${{ inv.amount }}</span>
+                <span class="inv-status" [style.color]="getStatusColor(inv.status)">{{ inv.status | uppercase }}</span>
+                <span class="inv-date">{{ inv.created_at | date:'shortDate' }}</span>
+            </div>
+            }
+        </div>
+        } @else {
+        <div class="empty-state"><span class="empty-icon">📄</span><h3>No invoices yet</h3><p>Create your first invoice to get started.</p></div>
+        }
+    </div>
+    }
+
+    <!-- Payment Links Tab -->
+    @if (activeTab === 'links') {
+    <div class="section">
+        <div class="section-header">
+            <h2>🔗 Payment Links</h2>
+            <button class="btn-primary" (click)="showLinkForm = !showLinkForm">{{ showLinkForm ? '✕ Cancel' : '+ Create Link' }}</button>
+        </div>
+
+        @if (showLinkForm) {
+        <div class="form-card">
+            <h3>Create Payment Link</h3>
+            <form [formGroup]="linkForm" (ngSubmit)="createPaymentLink()">
+                <div class="form-row">
+                    <div class="form-group"><label>Amount ($)</label><input formControlName="amount" type="number" min="0.01" step="0.01"></div>
+                    <div class="form-group"><label>Max Uses (0 = unlimited)</label><input formControlName="max_uses" type="number" min="0"></div>
+                </div>
+                <div class="form-group"><label>Description</label><input formControlName="description" placeholder="Payment for..."></div>
+                <button type="submit" class="btn-primary" [disabled]="linkForm.invalid">Create Link</button>
+            </form>
+        </div>
+        }
+
+        @if (paymentLinks().length) {
+        <div class="links-list">
+            @for (link of paymentLinks(); track link.id) {
+            <div class="link-card">
+                <div class="link-info">
+                    <span class="link-code">gatorpay.com/pay/{{ link.link_code }}</span>
+                    <span class="link-desc">{{ link.description || 'No description' }}</span>
+                </div>
+                <div class="link-details">
+                    <span class="link-amount">${{ link.amount }}</span>
+                    <span class="link-uses">{{ link.uses_count }}/{{ link.max_uses || '∞' }} uses</span>
+                </div>
+                <button class="btn-copy" (click)="copyLink(link.link_code)">📋 Copy</button>
+            </div>
+            }
+        </div>
+        } @else {
+        <div class="empty-state"><span class="empty-icon">🔗</span><h3>No payment links</h3><p>Create a shareable link to receive payments.</p></div>
+        }
+    </div>
+    }
+
+    <!-- Analytics Tab -->
+    @if (activeTab === 'analytics') {
+    <div class="section">
+        <h2>📊 Revenue Analytics</h2>
+        <div class="analytics-grid">
+            <div class="analytics-card">
+                <h4>Revenue Trend</h4>
+                <div class="mini-chart">
+                    <div class="chart-bars">
+                        <div class="chart-bar" style="height: 40%"><span class="bar-label">Jan</span></div>
+                        <div class="chart-bar" style="height: 55%"><span class="bar-label">Feb</span></div>
+                        <div class="chart-bar" style="height: 70%"><span class="bar-label">Mar</span></div>
+                        <div class="chart-bar accent" style="height: 85%"><span class="bar-label">Apr</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="analytics-card">
+                <h4>Payment Methods</h4>
+                <div class="method-list">
+                    <div class="method-item"><span>💳 Direct Pay</span><span class="method-pct">42%</span></div>
+                    <div class="method-item"><span>📱 QR Code</span><span class="method-pct">35%</span></div>
+                    <div class="method-item"><span>🔗 Payment Link</span><span class="method-pct">18%</span></div>
+                    <div class="method-item"><span>🏦 Invoice</span><span class="method-pct">5%</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+</div>
