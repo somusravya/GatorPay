@@ -138,6 +138,27 @@ input[type="text"] {
     gap: 0.6rem;
 }
 
+.risk-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+
+    button {
+        background: #0f172a;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        color: #cbd5e1;
+        cursor: pointer;
+        padding: 0.7rem;
+        text-align: left;
+
+        &.selected {
+            border-color: var(--accent, #f97316);
+            color: #fed7aa;
+        }
+    }
+}
+
 .subscription-item {
     display: grid;
     grid-template-columns: 1fr 90px auto;
@@ -190,6 +211,10 @@ input[type="text"] {
 
 .accent-lime {
     --accent: #84cc16;
+}
+
+.accent-orange {
+    --accent: #f97316;
 }
 
 @media (max-width: 640px) {

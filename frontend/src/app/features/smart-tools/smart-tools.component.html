@@ -299,5 +299,32 @@
             </div>
         </div>
     </section>
+
+    <section class="tool-card accent-orange">
+        <div class="tool-header">
+            <span class="tool-kicker">Feature 9</span>
+            <h2>Payment Risk Checklist</h2>
+            <p>Flag common warning signs before sending money or scanning a QR code.</p>
+        </div>
+
+        <div class="risk-list">
+            @for (signal of fraudSignals; track signal.label; let i = $index) {
+            <button type="button" [class.selected]="signal.checked" (click)="toggleFraudSignal(i)">
+                {{ signal.label }}
+            </button>
+            }
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <span>Risk score</span>
+                <strong>{{ getFraudRiskScore() }}/100</strong>
+            </div>
+            <div class="metric-card status">
+                <span>Recommendation</span>
+                <strong>{{ getFraudRiskLabel() }}</strong>
+            </div>
+        </div>
+    </section>
     </div>
 </div>

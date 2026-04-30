@@ -7,6 +7,12 @@ interface SubscriptionItem {
     cost: number;
 }
 
+interface FraudSignal {
+    label: string;
+    checked: boolean;
+    weight: number;
+}
+
 @Component({
     selector: 'app-smart-tools',
     standalone: true,
@@ -48,6 +54,13 @@ export class SmartToolsComponent {
 
     cashbackPurchaseAmount = 350;
     cashbackRate = 2;
+
+    fraudSignals: FraudSignal[] = [
+        { label: 'New recipient or merchant', checked: false, weight: 25 },
+        { label: 'Amount is higher than usual', checked: false, weight: 20 },
+        { label: 'Payment requested urgently', checked: false, weight: 25 },
+        { label: 'Link or QR came from an unknown sender', checked: false, weight: 30 }
+    ];
 
     getRemainingAfterSpending(): number {
         return Math.max(this.monthlyIncome - this.monthlySpending, 0);
@@ -153,5 +166,22 @@ export class SmartToolsComponent {
 
     getNetAfterCashback(): number {
         return Math.max(this.cashbackPurchaseAmount - this.getCashbackEstimate(), 0);
+    }
+
+    toggleFraudSignal(index: number): void {
+        this.fraudSignals = this.fraudSignals.map((item, itemIndex) => (
+            itemIndex === index ? { ...item, checked: !item.checked } : item
+        ));
+    }
+
+    getFraudRiskScore(): number {
+        return this.fraudSignals.reduce((score, item) => score + (item.checked ? item.weight : 0), 0);
+    }
+
+    getFraudRiskLabel(): string {
+        const score = this.getFraudRiskScore();
+        if (score >= 70) return 'High risk';
+        if (score >= 35) return 'Review carefully';
+        return 'Looks normal';
     }
 }
