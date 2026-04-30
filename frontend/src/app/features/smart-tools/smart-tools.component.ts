@@ -19,6 +19,11 @@ export class SmartToolsComponent {
     categorySpent = 185;
     categoryLimit = 450;
 
+    goalName = 'Spring break fund';
+    goalAmount = 2500;
+    currentSavings = 820;
+    monthlyContribution = 260;
+
     getRemainingAfterSpending(): number {
         return Math.max(this.monthlyIncome - this.monthlySpending, 0);
     }
@@ -49,5 +54,17 @@ export class SmartToolsComponent {
         if (usage >= 90) return 'Limit warning';
         if (usage >= 70) return 'Watch closely';
         return 'Healthy';
+    }
+
+    getGoalProgress(): number {
+        if (this.goalAmount <= 0) return 0;
+        return Math.min((this.currentSavings / this.goalAmount) * 100, 100);
+    }
+
+    getMonthsToGoal(): number {
+        const remaining = Math.max(this.goalAmount - this.currentSavings, 0);
+        if (remaining === 0) return 0;
+        if (this.monthlyContribution <= 0) return 0;
+        return Math.ceil(remaining / this.monthlyContribution);
     }
 }

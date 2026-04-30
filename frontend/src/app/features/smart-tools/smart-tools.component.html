@@ -94,5 +94,47 @@
             </div>
         </div>
     </section>
+
+    <section class="tool-card accent-gold">
+        <div class="tool-header">
+            <span class="tool-kicker">Feature 3</span>
+            <h2>Savings Goal Tracker</h2>
+            <p>Plan progress toward a specific savings target.</p>
+        </div>
+
+        <div class="input-grid">
+            <label>
+                Goal Name
+                <input type="text" [(ngModel)]="goalName">
+            </label>
+            <label>
+                Goal Amount
+                <input type="number" [(ngModel)]="goalAmount" min="0">
+            </label>
+            <label>
+                Saved So Far
+                <input type="number" [(ngModel)]="currentSavings" min="0">
+            </label>
+            <label>
+                Monthly Add
+                <input type="number" [(ngModel)]="monthlyContribution" min="0">
+            </label>
+        </div>
+
+        <div class="progress-track">
+            <span [style.width.%]="getGoalProgress()"></span>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <span>{{ goalName }} progress</span>
+                <strong>{{ getGoalProgress() | number:'1.0-0' }}%</strong>
+            </div>
+            <div class="metric-card">
+                <span>Months remaining</span>
+                <strong>{{ getMonthsToGoal() }}</strong>
+            </div>
+        </div>
+    </section>
     </div>
 </div>

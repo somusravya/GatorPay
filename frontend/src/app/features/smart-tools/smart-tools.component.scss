@@ -86,6 +86,10 @@ select {
     }
 }
 
+input[type="text"] {
+    min-width: 0;
+}
+
 .metrics-grid {
     margin-top: 1.25rem;
 }
@@ -130,4 +134,8 @@ select {
 
 .accent-green {
     --accent: #22c55e;
+}
+
+.accent-gold {
+    --accent: #f59e0b;
 }
