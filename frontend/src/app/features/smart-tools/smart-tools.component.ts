@@ -32,6 +32,9 @@ export class SmartToolsComponent {
     loanApr = 9.5;
     loanMonths = 24;
 
+    emergencyMonthlySpend = 2200;
+    emergencySaved = 1800;
+
     getRemainingAfterSpending(): number {
         return Math.max(this.monthlyIncome - this.monthlySpending, 0);
     }
@@ -95,5 +98,19 @@ export class SmartToolsComponent {
 
     getTotalLoanInterest(): number {
         return Math.max((this.getMonthlyLoanPayment() * this.loanMonths) - this.loanAmount, 0);
+    }
+
+    getEmergencyTarget(): number {
+        return this.emergencyMonthlySpend * 3;
+    }
+
+    getEmergencyProgress(): number {
+        const target = this.getEmergencyTarget();
+        if (target <= 0) return 0;
+        return Math.min((this.emergencySaved / target) * 100, 100);
+    }
+
+    getEmergencyGap(): number {
+        return Math.max(this.getEmergencyTarget() - this.emergencySaved, 0);
     }
 }
