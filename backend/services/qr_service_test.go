@@ -1,18 +1,20 @@
 package services_test
 
 import (
-	"testing"
-	"github.com/stretchr/testify/assert"
-	"gorm.io/gorm"
-	"gorm.io/driver/sqlite"
 	"gatorpay-backend/models"
 	"gatorpay-backend/services"
 	"github.com/shopspring/decimal"
+	"github.com/stretchr/testify/assert"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+	"testing"
 )
 
 func setupTestDBQ() *gorm.DB {
-	db, _ := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
-	db.AutoMigrate(&models.Merchant{}, &models.MerchantQRCode{}, &models.Wallet{})
+	db, _ := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	sqlDB, _ := db.DB()
+	sqlDB.SetMaxOpenConns(1)
+	db.AutoMigrate(&models.Merchant{}, &models.MerchantQRCode{}, &models.Wallet{}, &models.Transaction{})
 	return db
 }
 
@@ -27,13 +29,13 @@ func TestQRGenerations(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, qr)
 	assert.Contains(t, qr.Base64PNG, "data:image/png;base64")
-	
+
 	// Test Pay
 	db.Create(&models.Wallet{UserID: "merch1_qr", Balance: decimal.Zero})
 	db.Create(&models.Wallet{UserID: "u1_qr", Balance: decimal.NewFromInt(100)})
 	err = qs.PayViaQR("u1_qr", qr.CodeString, decimal.NewFromInt(50))
 	assert.NoError(t, err)
-	
+
 	// Verify Wallet Adjustments
 	var payerWallet models.Wallet
 	db.First(&payerWallet, "user_id = ?", "u1_qr")

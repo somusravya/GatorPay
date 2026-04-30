@@ -23,7 +23,7 @@ func main() {
 	// Initialize Services & Handlers
 	stockService := services.NewStockService()
 	tradingService := services.NewTradingService(stockService)
-
+	
 	stockHandler := handlers.NewStockHandler(stockService)
 	tradingHandler := handlers.NewTradingHandler(tradingService)
 
@@ -35,7 +35,7 @@ func main() {
 		v1.GET("/health", func(c *gin.Context) {
 			c.JSON(200, gin.H{"status": "trading service up"})
 		})
-
+		
 		// Stock read-only routes
 		stocks := v1.Group("/stocks")
 		{

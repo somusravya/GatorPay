@@ -1,5 +1,3 @@
-// Fraud detection feature API handlers.
-// Exposes endpoints for listing alerts and recording reviewer decisions.
 package handlers
 
 import (

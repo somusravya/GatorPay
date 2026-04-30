@@ -1,5 +1,3 @@
-// Fraud detection feature data models.
-// Defines fraud alerts and risk-event audit records used by the risk engine.
 package models
 
 import (
@@ -14,8 +12,8 @@ type FraudAlert struct {
 	ID            string         `gorm:"type:varchar(36);primaryKey" json:"id"`
 	UserID        string         `gorm:"type:varchar(36);index;not null" json:"user_id"`
 	TransactionID string         `gorm:"type:varchar(36)" json:"transaction_id"`
-	RiskScore     float64        `json:"risk_score"`                                     // 0-100
-	Type          string         `gorm:"type:varchar(50)" json:"type"`                   // "velocity", "geo_anomaly", "amount_spike", "suspicious_merchant"
+	RiskScore     float64        `json:"risk_score"` // 0-100
+	Type          string         `gorm:"type:varchar(50)" json:"type"`   // "velocity", "geo_anomaly", "amount_spike", "suspicious_merchant"
 	Status        string         `gorm:"type:varchar(20);default:pending" json:"status"` // "pending", "reviewed", "dismissed", "confirmed"
 	Description   string         `json:"description"`
 	Details       string         `gorm:"type:text" json:"details"`
@@ -41,7 +39,7 @@ type RiskEvent struct {
 	TransactionID string         `gorm:"type:varchar(36)" json:"transaction_id"`
 	EventType     string         `gorm:"type:varchar(50)" json:"event_type"`
 	RiskScore     float64        `json:"risk_score"`
-	Factors       string         `gorm:"type:text" json:"factors"`       // JSON string of risk factors
+	Factors       string         `gorm:"type:text" json:"factors"` // JSON string of risk factors
 	Action        string         `gorm:"type:varchar(30)" json:"action"` // "allow", "flag", "block"
 	CreatedAt     time.Time      `json:"created_at"`
 	DeletedAt     gorm.DeletedAt `gorm:"index" json:"-"`

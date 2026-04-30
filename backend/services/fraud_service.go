@@ -1,5 +1,3 @@
-// Fraud detection feature service layer.
-// Scores transaction risk, creates alerts, and supports admin review workflows.
 package services
 
 import (
