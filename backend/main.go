@@ -7,6 +7,7 @@ import (
 	"gatorpay-backend/config"
 	"gatorpay-backend/database"
 	"gatorpay-backend/handlers"
+	"gatorpay-backend/middleware"
 	"gatorpay-backend/routes"
 	"gatorpay-backend/services"
 
@@ -43,6 +44,16 @@ func main() {
 	qrService := services.NewQRService(database.DB)
 	statementService := services.NewStatementService(database.DB)
 
+	// Sprint 4 services
+	insightService := services.NewInsightService(database.DB)
+	budgetService := services.NewBudgetService(database.DB)
+	subscriptionService := services.NewSubscriptionService(database.DB)
+	fraudService := services.NewFraudService(database.DB)
+	notificationService := services.NewNotificationService(database.DB)
+	socialService := services.NewSocialService(database.DB)
+	adminService := services.NewAdminService(database.DB)
+	invoiceService := services.NewInvoiceService(database.DB)
+
 	// Initialize handlers
 	authHandler := handlers.NewAuthHandler(authService)
 	walletHandler := handlers.NewWalletHandler(walletService)
@@ -54,10 +65,20 @@ func main() {
 	qrHandler := handlers.NewQRHandler(qrService)
 	statementHandler := handlers.NewStatementHandler(statementService)
 
+	// Sprint 4 handlers
+	insightHandler := handlers.NewInsightHandler(insightService)
+	budgetHandler := handlers.NewBudgetHandler(budgetService)
+	subscriptionHandler := handlers.NewSubscriptionHandler(subscriptionService)
+	fraudHandler := handlers.NewFraudHandler(fraudService)
+	notificationHandler := handlers.NewNotificationHandler(notificationService)
+	socialHandler := handlers.NewSocialHandler(socialService)
+	adminHandler := handlers.NewAdminHandler(adminService)
+	invoiceHandler := handlers.NewInvoiceHandler(invoiceService)
+
 	// Setup Gin router
 	router := gin.Default()
 
-	// CORS configuration
+	// CORS configuration (must be before rate limiter for OPTIONS preflight)
 	corsOrigins := strings.Split(cfg.CORSOrigins, ",")
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     corsOrigins,
@@ -67,8 +88,13 @@ func main() {
 		AllowCredentials: true,
 	}))
 
+	// Rate limiting middleware (Sprint 4)
+	router.Use(middleware.RateLimiterMiddleware())
+
 	// Setup routes
-	routes.Setup(router, authHandler, walletHandler, transferHandler, billHandler, rewardHandler, tokenService, loanHandler, cardHandler, qrHandler, statementHandler)
+	routes.Setup(router, authHandler, walletHandler, transferHandler, billHandler, rewardHandler, tokenService, loanHandler, cardHandler, qrHandler, statementHandler,
+		// Sprint 4 handlers
+		insightHandler, budgetHandler, subscriptionHandler, fraudHandler, notificationHandler, socialHandler, adminHandler, invoiceHandler)
 
 	// Start server
 	log.Printf("🚀 GatorPay Backend running on port %s", cfg.Port)

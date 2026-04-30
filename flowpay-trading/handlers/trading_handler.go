@@ -112,6 +112,7 @@ func (h *TradingHandler) GetPortfolio(c *gin.Context) {
 
 	utils.SuccessResponse(c, http.StatusOK, data)
 }
+
 func (h *TradingHandler) GetOrderHistory(c *gin.Context) {
 	userID, exists := c.Get("userID")
 	if !exists {

@@ -61,6 +61,26 @@ func (h *QRHandler) GenerateQR(c *gin.Context) {
 	utils.SuccessResponse(c, http.StatusOK, "QR Generated", qr)
 }
 
+type QRLookupRequest struct {
+	CodeString string `json:"code_string" binding:"required"`
+}
+
+func (h *QRHandler) LookupQR(c *gin.Context) {
+	var req QRLookupRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, "QR code string is required")
+		return
+	}
+
+	result, err := h.qrService.LookupQR(req.CodeString)
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	utils.SuccessResponse(c, http.StatusOK, "QR code verified", result)
+}
+
 type QRPayRequest struct {
 	CodeString string  `json:"code_string" binding:"required"`
 	Amount     float64 `json:"amount"`

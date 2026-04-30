@@ -9,20 +9,20 @@ import (
 
 // InsightReport stores generated AI insight reports for a user
 type InsightReport struct {
-	ID                  string         `gorm:"type:varchar(36);primaryKey" json:"id"`
-	UserID              string         `gorm:"type:varchar(36);index;not null" json:"user_id"`
-	HealthScore         int            `gorm:"default:50" json:"health_score"` // 0-100
-	TotalIncome         float64        `json:"total_income"`
-	TotalSpending       float64        `json:"total_spending"`
-	SavingsRate         float64        `json:"savings_rate"`
-	TopCategory         string         `json:"top_category"`
-	AnomalyCount        int            `json:"anomaly_count"`
-	RecommendationCount int            `json:"recommendation_count"`
-	Period              string         `gorm:"type:varchar(20)" json:"period"` // "monthly", "weekly"
-	GeneratedAt         time.Time      `json:"generated_at"`
-	CreatedAt           time.Time      `json:"created_at"`
-	UpdatedAt           time.Time      `json:"updated_at"`
-	DeletedAt           gorm.DeletedAt `gorm:"index" json:"-"`
+	ID                string         `gorm:"type:varchar(36);primaryKey" json:"id"`
+	UserID            string         `gorm:"type:varchar(36);index;not null" json:"user_id"`
+	HealthScore       int            `gorm:"default:50" json:"health_score"` // 0-100
+	TotalIncome       float64        `json:"total_income"`
+	TotalSpending     float64        `json:"total_spending"`
+	SavingsRate       float64        `json:"savings_rate"`
+	TopCategory       string         `json:"top_category"`
+	AnomalyCount      int            `json:"anomaly_count"`
+	RecommendationCount int          `json:"recommendation_count"`
+	Period            string         `gorm:"type:varchar(20)" json:"period"` // "monthly", "weekly"
+	GeneratedAt       time.Time      `json:"generated_at"`
+	CreatedAt         time.Time      `json:"created_at"`
+	UpdatedAt         time.Time      `json:"updated_at"`
+	DeletedAt         gorm.DeletedAt `gorm:"index" json:"-"`
 }
 
 func (i *InsightReport) BeforeCreate(tx *gorm.DB) error {
