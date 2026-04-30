@@ -46,6 +46,9 @@ export class SmartToolsComponent {
         { name: 'Fitness app', cost: 14 }
     ];
 
+    cashbackPurchaseAmount = 350;
+    cashbackRate = 2;
+
     getRemainingAfterSpending(): number {
         return Math.max(this.monthlyIncome - this.monthlySpending, 0);
     }
@@ -142,5 +145,13 @@ export class SmartToolsComponent {
 
     removeSubscription(index: number): void {
         this.subscriptions = this.subscriptions.filter((_, itemIndex) => itemIndex !== index);
+    }
+
+    getCashbackEstimate(): number {
+        return this.cashbackPurchaseAmount * (this.cashbackRate / 100);
+    }
+
+    getNetAfterCashback(): number {
+        return Math.max(this.cashbackPurchaseAmount - this.getCashbackEstimate(), 0);
     }
 }

@@ -269,5 +269,35 @@
             </div>
         </div>
     </section>
+
+    <section class="tool-card accent-lime">
+        <div class="tool-header">
+            <span class="tool-kicker">Feature 8</span>
+            <h2>Cashback Estimator</h2>
+            <p>Estimate rewards before making a wallet, bill, or card payment.</p>
+        </div>
+
+        <div class="input-grid">
+            <label>
+                Purchase Amount
+                <input type="number" [(ngModel)]="cashbackPurchaseAmount" min="0">
+            </label>
+            <label>
+                Cashback %
+                <input type="number" [(ngModel)]="cashbackRate" min="0" step="0.1">
+            </label>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card status">
+                <span>Estimated cashback</span>
+                <strong>${{ getCashbackEstimate() | number:'1.2-2' }}</strong>
+            </div>
+            <div class="metric-card">
+                <span>Net after rewards</span>
+                <strong>${{ getNetAfterCashback() | number:'1.2-2' }}</strong>
+            </div>
+        </div>
+    </section>
     </div>
 </div>

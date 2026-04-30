@@ -188,6 +188,10 @@ input[type="text"] {
     --accent: #ec4899;
 }
 
+.accent-lime {
+    --accent: #84cc16;
+}
+
 @media (max-width: 640px) {
     .subscription-item {
         grid-template-columns: 1fr;
