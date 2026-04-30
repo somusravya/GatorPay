@@ -28,6 +28,18 @@ func (h *LoanHandler) GetOffers(c *gin.Context) {
 	utils.SuccessResponse(c, http.StatusOK, "Loaded offers", offers)
 }
 
+func (h *LoanHandler) CheckEligibility(c *gin.Context) {
+	userID, _ := c.Get("userID")
+
+	result, err := h.loanService.CheckEligibility(userID.(string))
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	utils.SuccessResponse(c, http.StatusOK, "Eligibility checked", result)
+}
+
 type ApplyLoanRequest struct {
 	OfferID    string  `json:"offer_id" binding:"required"`
 	Amount     float64 `json:"amount" binding:"required"`
@@ -49,7 +61,20 @@ func (h *LoanHandler) ApplyForLoan(c *gin.Context) {
 		return
 	}
 
-	utils.SuccessResponse(c, http.StatusCreated, "Loan created", loan)
+	utils.SuccessResponse(c, http.StatusCreated, "Loan created and disbursed", loan)
+}
+
+func (h *LoanHandler) CancelLoan(c *gin.Context) {
+	userID, _ := c.Get("userID")
+	loanID := c.Param("id")
+
+	err := h.loanService.CancelLoan(loanID, userID.(string))
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	utils.SuccessResponse(c, http.StatusOK, "Loan cancelled successfully", nil)
 }
 
 func (h *LoanHandler) GetUserLoans(c *gin.Context) {

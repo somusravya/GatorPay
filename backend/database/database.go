@@ -43,6 +43,20 @@ func Migrate() {
 		&models.Reward{},
 		&models.SavedBiller{},
 		&models.BillPayment{},
+		// Sprint 4 models
+		&models.InsightReport{},
+		&models.BudgetGoal{},
+		&models.AutoSaveRule{},
+		&models.Subscription{},
+		&models.FraudAlert{},
+		&models.RiskEvent{},
+		&models.Notification{},
+		&models.NotificationPreference{},
+		&models.SocialFeedItem{},
+		&models.Friendship{},
+		&models.FeedReaction{},
+		&models.Invoice{},
+		&models.PaymentLink{},
 	)
 	if err != nil {
 		log.Fatal("Failed to migrate database:", err)

@@ -181,3 +181,10 @@ func (s *TradingService) GetPortfolio(userID string) (map[string]interface{}, er
 		"buying_power": buyingPower,
 	}, nil
 }
+
+// GetOrderHistory returns the trade history for a user
+func (s *TradingService) GetOrderHistory(userID string) ([]models.Trade, error) {
+	var trades []models.Trade
+	err := config.DB.Where("user_id = ?", userID).Order("created_at DESC").Limit(50).Find(&trades).Error
+	return trades, err
+}

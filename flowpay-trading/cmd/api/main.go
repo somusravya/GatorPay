@@ -54,6 +54,7 @@ func main() {
 			trading.GET("/account", tradingHandler.GetAccount)
 			trading.POST("/trade", tradingHandler.ExecuteTrade)
 			trading.GET("/portfolio", tradingHandler.GetPortfolio)
+			trading.GET("/orders", tradingHandler.GetOrderHistory)
 		}
 	}
 
