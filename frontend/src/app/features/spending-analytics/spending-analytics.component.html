@@ -1,0 +1,90 @@
+<div class="analytics-page">
+    <div class="page-header">
+        <div>
+            <h1>Spending Analytics</h1>
+            <p class="subtitle">Track where your money goes</p>
+        </div>
+        <div class="range-selector">
+            <button [class.active]="selectedRange() === '1month'" (click)="setRange('1month')">1M</button>
+            <button [class.active]="selectedRange() === '3months'" (click)="setRange('3months')">3M</button>
+            <button [class.active]="selectedRange() === '6months'" (click)="setRange('6months')">6M</button>
+            <button [class.active]="selectedRange() === 'all'" (click)="setRange('all')">All</button>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="summary-row">
+        <div class="summary-card">
+            <span class="summary-icon">💰</span>
+            <div class="summary-info">
+                <span class="summary-value">${{ totalSpent().toFixed(2) }}</span>
+                <span class="summary-label">Total Spent</span>
+            </div>
+        </div>
+        <div class="summary-card">
+            <span class="summary-icon">📅</span>
+            <div class="summary-info">
+                <span class="summary-value">${{ avgDaily().toFixed(2) }}</span>
+                <span class="summary-label">Avg / Day</span>
+            </div>
+        </div>
+        <div class="summary-card">
+            <span class="summary-icon">🏆</span>
+            <div class="summary-info">
+                <span class="summary-value">{{ topCategory() }}</span>
+                <span class="summary-label">Top Category</span>
+            </div>
+        </div>
+        <div class="summary-card">
+            <span class="summary-icon">📊</span>
+            <div class="summary-info">
+                <span class="summary-value">{{ transactionCount() }}</span>
+                <span class="summary-label">Transactions</span>
+            </div>
+        </div>
+    </div>
+
+    @if (loading()) {
+    <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Analyzing your spending...</p>
+    </div>
+    } @else {
+    <div class="charts-grid">
+        <!-- Donut Chart -->
+        <div class="chart-card donut-section">
+            <h3>Spending by Category</h3>
+            <div class="donut-container">
+                <canvas #donutCanvas></canvas>
+            </div>
+            <div class="category-legend">
+                @for (cat of categories(); track cat.name) {
+                <div class="legend-item">
+                    <span class="legend-dot" [style.background]="cat.color"></span>
+                    <span class="legend-icon">{{ cat.icon }}</span>
+                    <span class="legend-name">{{ cat.name }}</span>
+                    <span class="legend-amount">${{ cat.amount.toFixed(0) }}</span>
+                    <span class="legend-pct">{{ cat.percentage.toFixed(1) }}%</span>
+                </div>
+                }
+            </div>
+        </div>
+
+        <!-- Line Chart -->
+        <div class="chart-card">
+            <h3>Monthly Spending Trend</h3>
+            <div class="chart-container">
+                <canvas #lineCanvas></canvas>
+            </div>
+        </div>
+
+        <!-- Bar Chart -->
+        <div class="chart-card">
+            <h3>Category Comparison</h3>
+            <div class="chart-container">
+                <canvas #barCanvas></canvas>
+            </div>
+        </div>
+    </div>
+    }
+</div>

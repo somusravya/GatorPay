@@ -1,5 +1,11 @@
 <div class="trading-container relative">
-  
+
+  <!-- Trade Notification Toast -->
+  <div *ngIf="tradeNotification" class="trade-toast" [ngClass]="'toast-' + tradeNotification.type">
+    <span class="toast-icon">{{tradeNotification.type === 'success' ? '✅' : '❌'}}</span>
+    <span>{{tradeNotification.message}}</span>
+  </div>
+
   <!-- KYC Modal Block (Pops up only when verification needed) -->
   <div *ngIf="showKycModal" class="modal-backdrop z-50">
     <div class="card glass w-full max-w-lg p-8">
@@ -42,6 +48,13 @@
   <div class="dashboard-grid fade-in">
     <!-- Market Banner (Full Width) -->
     <div class="market-banner flex-row overflow-x-auto items-center no-scrollbar">
+      <div class="market-status">
+        <span class="status-dot" [class.open]="marketStatus() === 'Market open'"></span>
+        <div>
+          <strong>{{marketStatus()}}</strong>
+          <span>{{lastTickAt ? ('Updated ' + (lastTickAt | date:'shortTime')) : 'Live simulation ready'}}</span>
+        </div>
+      </div>
       <div *ngFor="let m of marketSummary" class="market-item transition-all duration-300 hover:bg-gray-800/30 p-2 rounded cursor-pointer">
         <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">{{m.index}}</span>
         <div class="flex items-center gap-2">
@@ -58,32 +71,51 @@
     <!-- Main Content (Chart & Active Stock) -->
     <div class="main-content">
       <div class="glass p-6 flex flex-col min-h-[600px] relative overflow-visible border-gray-700/50 shadow-2xl">
-        
-        <!-- Search & Header -->
-        <div class="flex justify-between items-start mb-6 relative z-30">
+
+        <!-- Search & Category Tabs -->
+        <div class="flex justify-between items-start mb-4 relative z-30">
           <div class="relative w-96">
             <form [formGroup]="searchForm" (submit)="searchStock()">
               <div class="relative group">
-                <input type="text" formControlName="query" class="input input-bordered w-full h-11 px-4 bg-[#0d131f] border-gray-700/80 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-lg placeholder-gray-500 text-sm font-medium transition-all shadow-inner" placeholder="Search markets, symbols, or companies...">
+                <input type="text" formControlName="query" class="input input-bordered w-full h-11 px-4 bg-[#0d131f] border-gray-700/80 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-lg placeholder-gray-500 text-sm font-medium transition-all shadow-inner" placeholder="Search stocks, crypto, or companies...">
+                <span *ngIf="searchLoading" class="search-spinner"></span>
               </div>
             </form>
             <ul *ngIf="searchResults.length" class="absolute z-40 bg-[#1e293b] border border-gray-700 w-full mt-2 rounded-xl shadow-2xl max-h-72 overflow-y-auto">
               <li *ngFor="let s of searchResults" class="px-5 py-4 hover:bg-blue-600/20 cursor-pointer transition-colors border-b border-gray-700/50 last:border-0 hover:pl-6 duration-200" (click)="selectStock(s.symbol)">
-                <div class="font-bold text-white text-base">{{s.symbol}}</div>
-                <div class="text-sm text-gray-400 mt-1">{{s.name}}</div>
+                <div class="flex justify-between items-center">
+                  <div>
+                    <div class="font-bold text-white text-base">{{s.symbol}}</div>
+                    <div class="text-sm text-gray-400 mt-1">{{s.name}}</div>
+                  </div>
+                  <span class="text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded">{{s.sector}}</span>
+                </div>
               </li>
             </ul>
+            <div *ngIf="searchMessage" class="search-message">{{searchMessage}}</div>
           </div>
-          
-          <button *ngIf="activeStock" class="btn btn-sm bg-[#1e293b]/80 border-gray-600 hover:bg-blue-600/20 hover:border-blue-500/50 hover:text-blue-400 text-gray-300 gap-2 px-4 h-9 rounded-md transition-all duration-300 shadow font-bold" (click)="addToWatchlist(activeStock.symbol)">
-            + Add to Watchlist
+
+          <button *ngIf="activeStock" class="btn btn-sm bg-[#1e293b]/80 border-gray-600 hover:bg-blue-600/20 hover:border-blue-500/50 hover:text-blue-400 text-gray-300 gap-2 px-4 h-9 rounded-md transition-all duration-300 shadow font-bold" (click)="addToWatchlist(activeStock.symbol)" [disabled]="watchlist.includes(activeStock.symbol)">
+            {{watchlist.includes(activeStock.symbol) ? 'Watching' : '+ Watchlist'}}
+          </button>
+        </div>
+
+        <!-- Category Tabs -->
+        <div class="category-tabs mb-4">
+          <button *ngFor="let cat of categories" class="category-tab" [class.active]="activeCategory === cat" (click)="filterByCategory(cat)">
+            {{cat}}
           </button>
         </div>
 
         <!-- Dynamic Stock Header -->
         <div *ngIf="activeStock" class="mb-6 price-display z-10 transition-colors pl-2">
-          <h1 class="text-5xl font-extrabold tracking-tight text-white mb-1 drop-shadow-sm">{{activeStock.symbol}}</h1>
-          <div class="text-sm font-medium text-gray-400 mb-4">{{activeStockDetails?.name || 'Loading company details...'}}</div>
+          <div class="stock-heading-row">
+            <div>
+              <h1 class="text-5xl font-extrabold tracking-tight text-white mb-1 drop-shadow-sm">{{activeStock.symbol}}</h1>
+              <div class="text-sm font-medium text-gray-400 mb-4">{{activeStockDetails?.name || (loadingStock ? 'Loading company details...' : 'Company details unavailable')}}</div>
+            </div>
+            <span class="risk-chip" [ngClass]="riskLevel().className">{{riskLevel().label}}</span>
+          </div>
           <div class="flex items-baseline gap-4">
             <h2 class="text-5xl font-black tracking-tight drop-shadow-md" [ngClass]="{'price-flash-up': priceFlashState === 'up', 'price-flash-down': priceFlashState === 'down'}">
               {{activeStock.price | currency}}
@@ -98,10 +130,7 @@
 
         <!-- Time Filters -->
         <div class="flex gap-2 mb-4 z-10 pl-2">
-            <button class="px-3 py-1 text-xs font-bold rounded bg-blue-600 text-white">1D</button>
-            <button class="px-3 py-1 text-xs font-bold rounded text-gray-400 hover:bg-gray-800">1W</button>
-            <button class="px-3 py-1 text-xs font-bold rounded text-gray-400 hover:bg-gray-800">1M</button>
-            <button class="px-3 py-1 text-xs font-bold rounded text-gray-400 hover:bg-gray-800">1Y</button>
+            <button *ngFor="let range of timeRanges" class="range-button" [class.active]="selectedRange === range" (click)="setRange(range)">{{range}}</button>
         </div>
 
         <!-- Chart Container -->
@@ -114,12 +143,16 @@
           <div><div class="text-gray-500 font-medium mb-1 text-xs tracking-wider uppercase">52W High</div><div class="font-bold text-gray-200 text-base">{{activeStockDetails?.['52_week_high'] | currency}}</div></div>
           <div><div class="text-gray-500 font-medium mb-1 text-xs tracking-wider uppercase">52W Low</div><div class="font-bold text-gray-200 text-base">{{activeStockDetails?.['52_week_low'] | currency}}</div></div>
         </div>
+        <div class="trade-loading-overlay" *ngIf="loadingStock">
+          <span></span>
+          <strong>Loading market data</strong>
+        </div>
       </div>
     </div>
 
     <!-- Right Sidebar (Order Execution & Portfolio) -->
     <div class="right-sidebar">
-      
+
       <!-- Order Execution Panel (Pinned) -->
       <div class="order-panel shadow-2xl relative overflow-hidden" *ngIf="activeStock">
         <div class="absolute inset-0 bg-gradient-to-b from-blue-500/5 to-transparent pointer-events-none"></div>
@@ -128,7 +161,7 @@
             <button (click)="setTradeType('buy')" [class.active-buy]="tradeType === 'buy'">Buy {{activeStock.symbol}}</button>
             <button (click)="setTradeType('sell')" [class.active-sell]="tradeType === 'sell'">Sell {{activeStock.symbol}}</button>
             </div>
-            
+
             <form [formGroup]="tradeForm" (ngSubmit)="executeTrade()">
             <div class="mb-5">
                 <label class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2 block">Order Type</label>
@@ -138,22 +171,27 @@
                 <option disabled>Stop Order</option>
                 </select>
             </div>
-            
+
             <div class="mb-6">
                 <div class="flex justify-between mb-2">
                 <label class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Quantity</label>
-                <span class="text-xs text-blue-400 font-semibold cursor-pointer hover:text-blue-300">Max Available</span>
+                <button type="button" class="text-xs text-blue-400 font-semibold cursor-pointer hover:text-blue-300" (click)="setMaxQuantity()">Max {{maxTradableQuantity()}}</button>
                 </div>
                 <input type="number" formControlName="quantity" min="1" class="input w-full h-14 text-2xl font-black bg-[#0f172a] rounded-lg px-4 border-gray-700/80 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-right shadow-inner">
+                <div class="quick-qty-row">
+                  <button type="button" *ngFor="let qty of quickQuantities" (click)="setQuantity(qty)" [class.active]="tradeForm.value.quantity === qty">{{qty}}</button>
+                </div>
             </div>
-            
+
             <div class="flex justify-between items-center mb-6 pt-5 border-t border-gray-700/50">
                 <span class="text-gray-400 font-semibold">Estimated Cost</span>
-                <span class="text-2xl font-black text-white tracking-tight">{{(tradeForm.value.quantity * (activeStock?.price || 0)) | currency}}</span>
+                <span class="text-2xl font-black text-white tracking-tight">{{estimatedCost() | currency}}</span>
             </div>
-            
-            <button type="submit" class="w-full rounded-xl shadow-lg relative overflow-hidden" [ngClass]="tradeType === 'buy' ? 'btn-trade-buy' : 'btn-trade-sell'">
-                <span *ngIf="!orderProcessing">Review {{tradeType | uppercase}} Order</span>
+
+            <div *ngIf="orderWarning()" class="order-warning">{{orderWarning()}}</div>
+
+            <button type="submit" class="w-full rounded-xl shadow-lg relative overflow-hidden" [disabled]="!canSubmitOrder()" [ngClass]="tradeType === 'buy' ? 'btn-trade-buy' : 'btn-trade-sell'">
+                <span *ngIf="!orderProcessing">{{tradeType === 'buy' ? '🟢' : '🔴'}} {{tradeType | uppercase}} {{activeStock.symbol}}</span>
                 <span *ngIf="orderProcessing">Processing via Market...</span>
             </button>
 
@@ -166,12 +204,15 @@
 
       <!-- Live Watchlist -->
       <div class="glass p-5 border-gray-700/50">
-        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 border-b border-gray-800 pb-3">Watchlist</h3>
+        <div class="panel-heading">
+          <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest">Watchlist</h3>
+          <span>{{watchlistData.length}} symbols</span>
+        </div>
         <div class="flex flex-col gap-1 -mx-2">
           <div *ngFor="let w of watchlistData" class="flex justify-between items-center py-3 px-4 rounded-lg hover:bg-[#0f172a] cursor-pointer transition-all duration-200 group" (click)="selectStock(w.symbol)">
             <span class="font-bold text-white text-base group-hover:text-blue-400 transition-colors">{{w.symbol}}</span>
-            <div class="text-right flex flex-col items-end">
-              <span class="font-bold text-gray-100 transition-colors duration-300 tracking-tight" 
+            <div class="text-right flex flex-col items-end watch-price">
+              <span class="font-bold text-gray-100 transition-colors duration-300 tracking-tight"
                     [ngClass]="{'price-flash-up': w.flash === 'up', 'price-flash-down': w.flash === 'down'}">
                 {{w.price | currency}}
               </span>
@@ -180,6 +221,7 @@
                 <span *ngIf="w.change < 0">▼ </span>
                 {{Math.abs(w.change) | number:'1.2-2'}}%
               </span>
+              <button type="button" class="remove-watch" (click)="removeFromWatchlist(w.symbol, $event)">Remove</button>
             </div>
           </div>
         </div>
@@ -191,22 +233,152 @@
         <div class="mb-5 bg-[#0f172a] p-4 rounded-xl shadow-inner border border-gray-800/50">
           <div class="text-xs text-gray-400 font-semibold mb-1">Total Value</div>
           <div class="text-3xl font-black text-white tracking-tight">{{totalPortfolioValue | currency}}</div>
-          <div class="text-sm text-green-500 font-bold mt-1 flex items-center gap-1">
-             ▲ +{{totalPortfolioValue * 0.024 | currency}} Today
+          <div class="text-sm font-bold mt-1 flex items-center gap-1" [ngClass]="dayChangeEstimate() >= 0 ? 'text-green-500' : 'text-red-500'">
+             {{dayChangeEstimate() >= 0 ? '▲ +' : '▼ '}}{{dayChangeEstimate() | currency}} Today
           </div>
         </div>
-        
+        <div class="portfolio-metrics">
+          <div><span>Invested</span><strong>{{portfolioInvestedValue() | currency:'USD':'symbol':'1.0-0'}}</strong></div>
+          <div><span>Diversification</span><strong>{{diversificationScore()}}</strong></div>
+          <div><span>Capital Used</span><strong>{{buyingPowerUsage() | number:'1.0-0'}}%</strong></div>
+        </div>
+
         <div class="max-h-64 overflow-y-auto pr-2 -mx-2 custom-scrollbar">
           <div *ngIf="!portfolio?.length" class="text-sm text-gray-500 text-center py-6 font-medium">No open positions</div>
           <div *ngFor="let p of portfolio" class="flex justify-between py-3 border-b border-gray-800/80 last:border-0 cursor-pointer hover:bg-[#0f172a] px-4 rounded-lg transition-colors group" (click)="selectStock(p.symbol)">
             <div>
               <div class="font-bold text-white text-base group-hover:text-purple-400 transition-colors">{{p.symbol}}</div>
-              <div class="text-xs text-gray-400 font-medium">{{p.quantity}} Shares</div>
+              <div class="text-xs text-gray-400 font-medium">{{p.quantity}} Shares · Avg ${{p.avg_cost | number:'1.2-2'}}</div>
             </div>
             <div class="text-right flex flex-col items-end">
-              <div class="text-gray-200 font-bold tracking-tight">{{p.avg_cost * p.quantity | currency}}</div>
-              <div class="text-[10px] text-gray-500 uppercase tracking-widest font-bold mt-1">Total Return</div>
+              <div class="text-gray-200 font-bold tracking-tight">{{getPositionMarketValue(p) | currency}}</div>
+              <div class="text-xs font-bold mt-1" [ngClass]="getPositionPL(p) >= 0 ? 'text-green-500' : 'text-red-500'">
+                {{getPositionPL(p) >= 0 ? '+' : ''}}{{getPositionPL(p) | currency}} · {{getPositionPLPercent(p) | number:'1.1-1'}}%
+              </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order History -->
+      <div class="glass p-5">
+        <div class="flex justify-between items-center mb-4 border-b border-gray-800 pb-3 cursor-pointer" (click)="showOrderHistory = !showOrderHistory">
+          <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest">Order History</h3>
+          <span class="text-xs text-gray-500">{{showOrderHistory ? '▲' : '▼'}} {{orderHistory.length}} orders</span>
+        </div>
+
+        <div *ngIf="showOrderHistory" class="max-h-64 overflow-y-auto custom-scrollbar">
+          <div *ngIf="!orderHistory.length" class="text-sm text-gray-500 text-center py-4">No trades yet</div>
+          <div *ngFor="let o of orderHistory" class="flex justify-between items-center py-3 border-b border-gray-800/50 last:border-0 text-sm">
+            <div>
+              <div class="font-bold" [ngClass]="o.type === 'buy' ? 'text-green-400' : 'text-red-400'">
+                {{o.type | uppercase}} {{o.symbol}}
+              </div>
+              <div class="text-xs text-gray-500">{{o.quantity}} × ${{o.price | number:'1.2-2'}}</div>
+            </div>
+            <div class="text-right">
+              <div class="font-bold text-gray-200">${{o.total_amount | number:'1.2-2'}}</div>
+              <div class="text-xs text-gray-500">{{o.CreatedAt | date:'short'}}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- SPRINT 4: Portfolio Intelligence (Issue #72) -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="intelligence-section" *ngIf="isVerified">
+    <h2 class="intelligence-title">📊 Portfolio Intelligence</h2>
+
+    <div class="intelligence-grid">
+
+      <!-- Allocation Pie Chart -->
+      <div class="intel-card">
+        <h3 class="intel-header">🥧 Portfolio Allocation</h3>
+        <div class="pie-chart-container">
+          <svg viewBox="0 0 200 200" class="pie-svg">
+            <circle *ngFor="let segment of pieSegments()" cx="100" cy="100" r="80" fill="none" [attr.stroke]="segment.color" stroke-width="30" [attr.stroke-dasharray]="segment.dash + ' 503'" [attr.stroke-dashoffset]="segment.offset" transform="rotate(-90 100 100)"/>
+          </svg>
+          <div class="pie-center-label">
+            <span class="pie-total">{{totalPortfolioValue | currency:'USD':'symbol':'1.0-0'}}</span>
+            <span class="pie-sublabel">Total Value</span>
+          </div>
+        </div>
+        <div class="allocation-legend">
+          <div class="legend-item" *ngFor="let slice of allocation()"><span class="legend-dot" [style.background]="slice.color"></span>{{slice.sector}} {{slice.percent}}%</div>
+        </div>
+      </div>
+
+      <!-- Rebalancing Recommendations -->
+      <div class="intel-card">
+        <h3 class="intel-header">⚖️ Rebalancing Suggestions</h3>
+        <div class="rebalance-list">
+          <div *ngIf="!rebalanceSuggestions().length" class="intel-empty">Allocation is close to target. New buys can follow your watchlist.</div>
+          <div class="rebalance-item" *ngFor="let item of rebalanceSuggestions()">
+            <div class="rebalance-info">
+              <span class="rebalance-sector">{{item.sector}}</span>
+              <div class="rebalance-bars">
+                <div class="bar-row">
+                  <span class="bar-label">Current</span>
+                  <div class="bar-track"><div class="bar-fill bar-current" [style.width.%]="item.current"></div></div>
+                  <span class="bar-pct">{{item.current}}%</span>
+                </div>
+                <div class="bar-row">
+                  <span class="bar-label">Target</span>
+                  <div class="bar-track"><div class="bar-fill bar-target" [style.width.%]="item.target"></div></div>
+                  <span class="bar-pct">{{item.target}}%</span>
+                </div>
+              </div>
+            </div>
+            <span class="rebalance-action" [ngClass]="item.action === 'Add' ? 'buy' : 'sell'">{{item.action}} {{item.delta}}%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- News Sentiment Panel -->
+      <div class="intel-card">
+        <h3 class="intel-header">📰 Market Sentiment</h3>
+        <div class="sentiment-list">
+          <div class="sentiment-item" *ngFor="let item of sentimentItems()">
+            <span class="sentiment-indicator" [ngClass]="item.tone">{{item.label}}</span>
+            <div class="sentiment-content">
+              <span class="sentiment-headline">{{item.headline}}</span>
+              <span class="sentiment-source">{{item.source}} · now</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tax Gain/Loss Estimator -->
+      <div class="intel-card">
+        <h3 class="intel-header">📋 Tax Gain/Loss Estimator</h3>
+        <div class="tax-summary">
+          <div class="tax-stat green">
+            <span class="tax-label">Unrealized Gains</span>
+            <span class="tax-value">+${{taxSummary().gains | number:'1.2-2'}}</span>
+          </div>
+          <div class="tax-stat red">
+            <span class="tax-label">Unrealized Losses</span>
+            <span class="tax-value">-${{taxSummary().losses | number:'1.2-2'}}</span>
+          </div>
+          <div class="tax-stat">
+            <span class="tax-label">Net Gain/Loss</span>
+            <span class="tax-value" [class.positive]="taxSummary().net >= 0">{{taxSummary().net >= 0 ? '+' : ''}}${{taxSummary().net | number:'1.2-2'}}</span>
+          </div>
+          <div class="tax-divider"></div>
+          <div class="tax-stat highlight">
+            <span class="tax-label">Estimated Tax (15%)</span>
+            <span class="tax-value">~${{taxSummary().estimatedTax | number:'1.2-2'}}</span>
+          </div>
+        </div>
+        <div class="tax-harvest-tip">
+          <span class="tip-icon">💡</span>
+          <div class="tip-content">
+            <strong>Tax-Loss Harvesting Opportunity</strong>
+            <p>Consider selling underperforming positions to offset gains and reduce your tax liability.</p>
           </div>
         </div>
       </div>

@@ -99,6 +99,7 @@ export interface WithdrawRequest {
   amount: number;
   bank_account: string;
 }
+
 // Sprint 2 interfaces
 
 export interface TransferRequest {
@@ -181,3 +182,4 @@ export interface Offer {
   icon: string;
   is_active: boolean;
 }
+

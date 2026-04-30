@@ -77,6 +77,22 @@
                 <span>Scan QR</span>
                 }
             </a>
+
+            <!-- NEW FEATURES -->
+            <div class="nav-divider"></div>
+            <a routerLink="/analytics" routerLinkActive="active" class="nav-item">
+                <span class="nav-icon">📉</span>
+                @if (!sidebarCollapsed()) {
+                <span>Analytics</span>
+                }
+            </a>
+            <a routerLink="/savings-goals" routerLinkActive="active" class="nav-item">
+                <span class="nav-icon">🎯</span>
+                @if (!sidebarCollapsed()) {
+                <span>Savings Goals</span>
+                }
+            </a>
+
             <a routerLink="/profile" routerLinkActive="active" class="nav-item">
                 <span class="nav-icon">👤</span>
                 @if (!sidebarCollapsed()) {
@@ -106,6 +122,12 @@
             </div>
 
             <div class="header-right">
+                <button class="theme-toggle" (click)="toggleTheme()" [title]="'Theme: ' + themeService.getLabel()">
+                    <span class="theme-icon">{{ themeService.getIcon() }}</span>
+                    @if (!sidebarCollapsed()) {
+                    <span class="theme-label">{{ themeService.getLabel() }}</span>
+                    }
+                </button>
                 <span [class]="kycBadgeClass()">
                     {{ user()?.kyc_status | uppercase }}
                 </span>

@@ -69,6 +69,16 @@ export const routes: Routes = [
                 path: 'profile',
                 loadComponent: () =>
                     import('./features/profile/profile.component').then(m => m.ProfileComponent)
+            },
+            {
+                path: 'analytics',
+                loadComponent: () =>
+                    import('./features/spending-analytics/spending-analytics.component').then(m => m.SpendingAnalyticsComponent)
+            },
+            {
+                path: 'savings-goals',
+                loadComponent: () =>
+                    import('./features/savings-goals/savings-goals.component').then(m => m.SavingsGoalsComponent)
             }
         ]
     },

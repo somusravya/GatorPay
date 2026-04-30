@@ -1,0 +1,98 @@
+<div class="fraud-alerts-page">
+    <div class="page-header">
+        <div>
+            <h1>🛡️ Fraud Alerts</h1>
+            <p class="subtitle">Monitor suspicious activity on your account</p>
+        </div>
+    </div>
+
+    <div class="stats-row">
+        <div class="stat-card">
+            <span class="stat-icon">⏳</span>
+            <div class="stat-info">
+                <span class="stat-value">{{ pendingCount }}</span>
+                <span class="stat-label">Pending</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <span class="stat-icon">🔴</span>
+            <div class="stat-info">
+                <span class="stat-value">{{ highRiskCount }}</span>
+                <span class="stat-label">High Risk</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <span class="stat-icon">✅</span>
+            <div class="stat-info">
+                <span class="stat-value">{{ resolvedCount }}</span>
+                <span class="stat-label">Resolved</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="filter-chips">
+        @for (filter of filters; track filter.id) {
+        <button class="chip" [class.active]="activeFilter === filter.id" (click)="filterAlerts(filter.id)">
+            <span>{{ filter.icon }}</span> {{ filter.label }}
+        </button>
+        }
+    </div>
+
+    @if (loading()) {
+    <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading alerts...</p>
+    </div>
+    } @else if (alerts().length === 0) {
+    <div class="empty-state">
+        <span class="empty-icon">🎉</span>
+        <h3>All clear!</h3>
+        <p>No fraud alerts to display.</p>
+    </div>
+    } @else {
+    <div class="alerts-list">
+        @for (alert of alerts(); track alert.id) {
+        <div class="alert-card" [class]="'risk-' + getRiskLevel(alert.risk_score)" (click)="showDetail.set(alert)">
+            <div class="alert-icon">{{ getTypeIcon(alert.type) }}</div>
+            <div class="alert-info">
+                <span class="alert-type">{{ getTypeLabel(alert.type) }}</span>
+                <span class="alert-desc">{{ alert.description || 'Suspicious activity detected' }}</span>
+                <span class="alert-time">{{ getTimeAgo(alert.created_at) }}</span>
+            </div>
+            <div class="alert-right">
+                <span class="risk-badge" [class]="'risk-' + getRiskLevel(alert.risk_score)">
+                    {{ getRiskLabel(alert.risk_score) }}
+                </span>
+                <span class="alert-status">{{ alert.status }}</span>
+            </div>
+        </div>
+        }
+    </div>
+    }
+
+    @if (showDetail()) {
+    <div class="modal-overlay" (click)="showDetail.set(null)">
+        <div class="modal" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h2>{{ getTypeIcon(showDetail().type) }} Alert Details</h2>
+                <button class="close-btn" (click)="showDetail.set(null)">✕</button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Type:</strong> {{ getTypeLabel(showDetail().type) }}</p>
+                <p><strong>Risk Score:</strong> {{ showDetail().risk_score }}/100</p>
+                <p><strong>Status:</strong> {{ showDetail().status }}</p>
+                <p><strong>Description:</strong> {{ showDetail().description || 'No details available' }}</p>
+                <p><strong>Time:</strong> {{ showDetail().created_at | date:'medium' }}</p>
+            </div>
+            @if (showDetail().status === 'pending') {
+            <div class="modal-footer">
+                <button class="cancel-btn" (click)="reviewAlert(showDetail().id, 'dismissed')"
+                    [disabled]="actionLoading() === showDetail().id">Dismiss</button>
+                <button class="submit-btn danger" (click)="reviewAlert(showDetail().id, 'confirmed')"
+                    [disabled]="actionLoading() === showDetail().id">Confirm Fraud</button>
+            </div>
+            }
+        </div>
+    </div>
+    }
+</div>

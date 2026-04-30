@@ -5,14 +5,14 @@
 
 // Balance Card
 .balance-card {
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6, #6366f1);
+    background: var(--gradient-primary);
     border-radius: 20px;
     padding: 2rem 2.5rem;
     margin-bottom: 2rem;
     color: white;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 20px 40px rgba(59, 130, 246, 0.25);
+    box-shadow: var(--shadow-elevated);
 
     &::before {
         content: '';
@@ -86,13 +86,13 @@
     margin-bottom: 1rem;
 
     h3 {
-        color: #f1f5f9;
+        color: var(--text-primary);
         font-size: 1.1rem;
         margin: 0;
     }
 
     .view-all {
-        color: #3b82f6;
+        color: var(--accent-blue);
         text-decoration: none;
         font-size: 0.9rem;
         font-weight: 500;
@@ -111,20 +111,20 @@
 }
 
 .action-card {
-    background: #1e293b;
+    background: var(--bg-card);
     border-radius: 16px;
     padding: 1.5rem;
     text-align: center;
     text-decoration: none;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-subtle);
     transition: all 0.3s ease;
     cursor: pointer;
 
     &:hover {
         transform: translateY(-4px);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        border-color: var(--accent, #3b82f6);
-        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+        box-shadow: var(--shadow-card);
+        border-color: var(--accent-blue);
+        background: var(--gradient-accent);
     }
 
     .action-icon {
@@ -133,7 +133,7 @@
     }
 
     .action-label {
-        color: #cbd5e1;
+        color: var(--text-secondary);
         font-size: 0.9rem;
         font-weight: 500;
     }
@@ -148,13 +148,13 @@
 }
 
 .stat-card {
-    background: #1e293b;
+    background: var(--bg-card);
     border-radius: 14px;
     padding: 1.25rem;
     display: flex;
     align-items: center;
     gap: 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-subtle);
 
     .stat-icon {
         font-size: 1.5rem;
@@ -166,13 +166,13 @@
     }
 
     .stat-value {
-        color: #f1f5f9;
+        color: var(--text-primary);
         font-weight: 700;
         font-size: 1.1rem;
     }
 
     .stat-label {
-        color: #64748b;
+        color: var(--text-muted);
         font-size: 0.8rem;
     }
 }
@@ -185,17 +185,17 @@
 }
 
 .transaction-item {
-    background: #1e293b;
+    background: var(--bg-card);
     border-radius: 12px;
     padding: 1rem 1.25rem;
     display: flex;
     align-items: center;
     gap: 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-subtle);
     transition: background 0.2s;
 
     &:hover {
-        background: rgba(30, 41, 59, 0.8);
+        background: var(--bg-card-hover);
     }
 }
 
@@ -223,13 +223,13 @@
     flex-direction: column;
 
     .tx-description {
-        color: #e2e8f0;
+        color: var(--text-primary);
         font-weight: 500;
         font-size: 0.9rem;
     }
 
     .tx-date {
-        color: #64748b;
+        color: var(--text-muted);
         font-size: 0.8rem;
         margin-top: 0.15rem;
     }
@@ -240,11 +240,11 @@
     font-size: 1rem;
 
     &.positive {
-        color: #22c55e;
+        color: var(--accent-green);
     }
 
     &.negative {
-        color: #ef4444;
+        color: var(--accent-red);
     }
 }
 
@@ -252,7 +252,7 @@
 .empty-state {
     text-align: center;
     padding: 3rem;
-    color: #64748b;
+    color: var(--text-muted);
 
     .empty-icon {
         font-size: 3rem;
@@ -266,7 +266,7 @@
 
 // Skeletons
 .skeleton {
-    background: linear-gradient(90deg, #1e293b 25%, #2d3a4f 50%, #1e293b 75%);
+    background: linear-gradient(90deg, var(--bg-card) 25%, rgba(45, 58, 79, 0.5) 50%, var(--bg-card) 75%);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
     border-radius: 12px;

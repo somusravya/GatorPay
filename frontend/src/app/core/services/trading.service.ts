@@ -26,4 +26,8 @@ export class TradingService {
   executeTrade(payload: { symbol: string, type: string, quantity: number, price: number }): Observable<ApiResponse<any>> {
     return this.http.post<ApiResponse<any>>(`${this.apiUrl}/trade`, payload);
   }
+
+  getOrderHistory(): Observable<ApiResponse<any>> {
+    return this.http.get<ApiResponse<any>>(`${this.apiUrl}/orders`);
+  }
 }

@@ -1,20 +1,21 @@
 .app-layout {
     display: flex;
     min-height: 100vh;
-    background: #0f172a;
+    background: var(--bg-primary);
 }
 
 // Sidebar
 .sidebar {
     width: 250px;
-    background: #1e293b;
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    background: var(--bg-card);
+    border-right: 1px solid var(--border-subtle);
     display: flex;
     flex-direction: column;
     transition: width 0.3s ease;
     position: fixed;
     height: 100vh;
     z-index: 100;
+    overflow-y: auto;
 
     .sidebar-collapsed & {
         width: 70px;
@@ -26,7 +27,7 @@
     align-items: center;
     gap: 0.5rem;
     padding: 1.5rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid var(--border-subtle);
 
     .logo-icon {
         font-size: 1.8rem;
@@ -35,7 +36,7 @@
     .logo-text {
         font-size: 1.4rem;
         font-weight: 800;
-        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -51,13 +52,19 @@
     gap: 0.25rem;
 }
 
+.nav-divider {
+    height: 1px;
+    background: var(--border-subtle);
+    margin: 0.5rem 0;
+}
+
 .nav-item {
     display: flex;
     align-items: center;
     gap: 0.75rem;
     padding: 0.75rem 1rem;
     border-radius: 10px;
-    color: #94a3b8;
+    color: var(--text-secondary);
     text-decoration: none;
     font-size: 0.95rem;
     font-weight: 500;
@@ -76,22 +83,22 @@
 
     &:hover {
         background: rgba(59, 130, 246, 0.1);
-        color: #e2e8f0;
+        color: var(--text-primary);
     }
 
     &.active {
-        background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2));
-        color: #3b82f6;
+        background: var(--gradient-accent);
+        color: var(--accent-blue);
     }
 }
 
 .sidebar-footer {
     padding: 0.75rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: 1px solid var(--border-subtle);
 }
 
 .logout-btn {
-    color: #f87171 !important;
+    color: var(--accent-red) !important;
 
     &:hover {
         background: rgba(239, 68, 68, 0.1) !important;
@@ -114,8 +121,8 @@
     align-items: center;
     justify-content: space-between;
     padding: 1rem 2rem;
-    background: #1e293b;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-subtle);
     position: sticky;
     top: 0;
     z-index: 50;
@@ -124,7 +131,7 @@
 .menu-toggle {
     background: none;
     border: none;
-    color: #94a3b8;
+    color: var(--text-secondary);
     font-size: 1.5rem;
     cursor: pointer;
     padding: 0.25rem;
@@ -137,7 +144,7 @@
 }
 
 .header-greeting h2 {
-    color: #f1f5f9;
+    color: var(--text-primary);
     font-size: 1.25rem;
     font-weight: 600;
     margin: 0;
@@ -147,6 +154,37 @@
     display: flex;
     align-items: center;
     gap: 1rem;
+}
+
+// Theme toggle button
+.theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-medium);
+    border-radius: 12px;
+    padding: 0.4rem 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: var(--text-secondary);
+
+    &:hover {
+        border-color: var(--accent-blue);
+        background: rgba(59, 130, 246, 0.1);
+        color: var(--text-primary);
+        transform: scale(1.05);
+    }
+
+    .theme-icon {
+        font-size: 1.1rem;
+    }
+
+    .theme-label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+    }
 }
 
 .kyc-badge {
@@ -159,19 +197,19 @@
 
 .kyc-pending {
     background: rgba(251, 191, 36, 0.15);
-    color: #fbbf24;
+    color: var(--accent-yellow);
     border: 1px solid rgba(251, 191, 36, 0.3);
 }
 
 .kyc-verified {
     background: rgba(34, 197, 94, 0.15);
-    color: #22c55e;
+    color: var(--accent-green);
     border: 1px solid rgba(34, 197, 94, 0.3);
 }
 
 .kyc-rejected {
     background: rgba(239, 68, 68, 0.15);
-    color: #ef4444;
+    color: var(--accent-red);
     border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
@@ -179,7 +217,7 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -232,5 +270,9 @@
 
     .header-greeting h2 {
         font-size: 1rem;
+    }
+
+    .theme-label {
+        display: none;
     }
 }

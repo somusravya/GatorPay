@@ -23,4 +23,8 @@ export class QrService {
   registerMerchant(payload: any): Observable<ApiResponse<any>> {
     return this.http.post<ApiResponse<any>>(`${this.apiUrl}/merchant/register`, payload);
   }
+
+  lookupQR(code: string): Observable<ApiResponse<any>> {
+    return this.http.get<ApiResponse<any>>(`${this.apiUrl}/qr/lookup?code=${code}`);
+  }
 }

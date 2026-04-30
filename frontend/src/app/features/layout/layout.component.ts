@@ -2,6 +2,7 @@ import { Component, computed, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { ThemeService } from '../../core/services/theme.service';
 
 @Component({
     selector: 'app-layout',
@@ -12,6 +13,7 @@ import { AuthService } from '../../core/services/auth.service';
 })
 export class LayoutComponent {
     private authService = inject(AuthService);
+    themeService = inject(ThemeService);
 
     sidebarCollapsed = signal(false);
     user = this.authService.currentUser;
@@ -37,6 +39,10 @@ export class LayoutComponent {
 
     toggleSidebar(): void {
         this.sidebarCollapsed.update(v => !v);
+    }
+
+    toggleTheme(): void {
+        this.themeService.toggle();
     }
 
     logout(): void {

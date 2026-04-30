@@ -115,6 +115,7 @@ export class WalletComponent {
             }
         });
     }
+
     downloadStatement(format: 'csv' | 'pdf'): void {
         const start = '2020-01-01';
         const end = new Date().toISOString().split('T')[0];
