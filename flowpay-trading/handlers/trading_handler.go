@@ -112,3 +112,18 @@ func (h *TradingHandler) GetPortfolio(c *gin.Context) {
 
 	utils.SuccessResponse(c, http.StatusOK, data)
 }
+func (h *TradingHandler) GetOrderHistory(c *gin.Context) {
+	userID, exists := c.Get("userID")
+	if !exists {
+		utils.ErrorResponse(c, http.StatusUnauthorized, "Unauthorized")
+		return
+	}
+
+	trades, err := h.tradingService.GetOrderHistory(userID.(string))
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to load order history")
+		return
+	}
+
+	utils.SuccessResponse(c, http.StatusOK, trades)
+}
